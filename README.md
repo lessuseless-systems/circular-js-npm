@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4+-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-16+-green.svg)](https://nodejs.org/)
 
-> Official API specification for Circular Protocol blockchain operations
+> Official API specification for Circular Protocol blockchain operations and wallet management
 
 Official TypeScript/JavaScript SDK for interacting with Circular Protocol blockchain networks. Provides a type-safe, promise-based API for wallet operations, transactions, smart contracts, assets, and more.
 

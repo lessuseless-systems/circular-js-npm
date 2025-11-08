@@ -8,7 +8,7 @@
     "node-fetch": "^3.3.2",
     "sha256": "^0.2.0"
   },
-  "description": "Official API specification for Circular Protocol blockchain operations",
+  "description": "Official API specification for Circular Protocol blockchain operations and wallet management",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",
