@@ -20,14 +20,6 @@ module.exports = {
       "statements": 80
     }
   },
-  "globals": {
-    "ts-jest": {
-      "tsconfig": {
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true
-      }
-    }
-  },
   "moduleFileExtensions": [
     "ts",
     "tsx",
@@ -51,7 +43,15 @@ module.exports = {
     "<rootDir>/lib/"
   ],
   "transform": {
-    "^.+\\.ts$": "ts-jest"
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        "tsconfig": {
+          "allowSyntheticDefaultImports": true,
+          "esModuleInterop": true
+        }
+      }
+    ]
   },
   "verbose": true
 };
