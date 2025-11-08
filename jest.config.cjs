@@ -20,12 +20,16 @@ module.exports = {
       "statements": 80
     }
   },
+  "extensionsToTreatAsEsm": [
+    ".ts"
+  ],
   "globals": {
     "ts-jest": {
       "tsconfig": {
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true
-      }
+      },
+      "useESM": true
     }
   },
   "moduleFileExtensions": [
@@ -39,6 +43,9 @@ module.exports = {
   "preset": "ts-jest",
   "rootDir": ".",
   "testEnvironment": "node",
+  "testEnvironmentOptions": {
+    "url": "http://localhost"
+  },
   "testMatch": [
     "**/__tests__/**/*.ts",
     "**/?(*.)+(spec|test).ts"

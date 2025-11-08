@@ -316,7 +316,6 @@ export interface getBlockchainsResponse {
 export class CircularProtocolAPI {
   private readonly baseUrl: string;
   private readonly apiKey: string;
-  private readonly version: string;
 
   /**
    * Create a new Circular Protocol API client
@@ -327,7 +326,6 @@ export class CircularProtocolAPI {
   constructor(baseUrl?: string, apiKey?: string) {
     this.baseUrl = baseUrl || 'https://api.circular.example';
     this.apiKey = apiKey || '';
-    this.version = '2.0.0-alpha.1';
   }
 
   /**
@@ -356,7 +354,7 @@ export class CircularProtocolAPI {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      return await response.json() as T;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`API request failed: ${error.message}`);
