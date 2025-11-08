@@ -58,7 +58,7 @@ jobs:
     - name: Type check
       run: npx tsc --noEmit
     - name: Run tests
-      run: npm test -- --passWithNoTests
+      run: npm test
     - name: Build package
       run: npm run build
     strategy:
