@@ -4,6 +4,9 @@
  * Version: 2.0.0-alpha.1
  */
 
+import { ec as EC } from 'elliptic';
+import sha256 from 'sha256';
+
 // ============================================================================
 // Request Interfaces
 // ============================================================================
@@ -316,6 +319,10 @@ export interface getBlockchainsResponse {
 export class CircularProtocolAPI {
   private readonly baseUrl: string;
   private readonly apiKey: string;
+  private readonly headers: Record<string, string>;
+private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
+private nagKey: string = '';
+private lastError: string = '';
 
   /**
    * Create a new Circular Protocol API client
@@ -326,42 +333,47 @@ export class CircularProtocolAPI {
   constructor(baseUrl?: string, apiKey?: string) {
     this.baseUrl = baseUrl || 'https://api.circular.example';
     this.apiKey = apiKey || '';
+    this.headers = {};
   }
 
-  /**
-   * Make an HTTP request to the API
-   * @private
-   */
-  private async _makeRequest<T>(endpoint: string, data: object): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+/**
+ * Make HTTP request to NAG endpoint
+ * @param endpoint - Endpoint name (e.g., 'GetBlockchains')
+ * @param data - Request payload
+ * @returns API response
+ */
+private async _makeRequest(endpoint: string, data: any = {}): Promise<any> {
+  const url = `${this.nagURL}Circular_${endpoint}_`;
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...this.headers,
+  };
 
-    if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json() as T;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`API request failed: ${error.message}`);
-      }
-      throw error;
-    }
+  // Add NAG key if set
+  if (this.nagKey) {
+    headers['X-NAG-Key'] = this.nagKey;
   }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  // Check for API-level errors
+  if (result.Result !== 200) {
+    throw new Error(result.Response || 'API request failed');
+  }
+
+  return result.Response;
+}
 
   // ============================================================================
   // API Methods
@@ -584,6 +596,260 @@ Returns information about all active and inactive blockchains.
   async getBlockchains(req: getBlockchainsRequest): Promise<getBlockchainsResponse> {
     return this._makeRequest('/getBlockchains', req);
   }
+
+  // ============================================================================
+  // Helper Methods - Cryptography
+  // ============================================================================
+
+/**
+ * Sign a message using secp256k1
+ * @param message - Message to sign
+ * @param privateKey - Private key in hex format (with or without '0x' prefix)
+ * @returns DER-encoded signature as hex string
+ */
+signMessage(message: string, privateKey: string): string {
+  const ec = new EC('secp256k1');
+  const key = ec.keyFromPrivate(this.hexFix(privateKey), 'hex');
+  const msgHash = sha256(message);
+  const signature = key.sign(msgHash).toDER('hex');
+  return signature;
+}
+
+/**
+ * Verify a signature
+ * @param publicKey - Public key in hex format
+ * @param message - Original message that was signed
+ * @param signature - DER-encoded signature in hex format
+ * @returns true if signature is valid, false otherwise
+ */
+verifySignature(publicKey: string, message: string, signature: string): boolean {
+  try {
+    const ec = new EC('secp256k1');
+    const key = ec.keyFromPublic(this.hexFix(publicKey), 'hex');
+    const msgHash = sha256(message);
+    return key.verify(msgHash, signature);
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Derive public key from private key
+ * @param privateKey - Private key in hex format (with or without '0x' prefix)
+ * @returns Public key in uncompressed hex format
+ */
+getPublicKey(privateKey: string): string {
+  const ec = new EC('secp256k1');
+  const key = ec.keyFromPrivate(this.hexFix(privateKey), 'hex');
+  return key.getPublic('hex');
+}
+
+/**
+ * Compute SHA256 hash of a string
+ * @param str - String to hash
+ * @returns SHA256 hash as hex string
+ */
+hashString(str: string): string {
+  return sha256(str);
+}
+
+  // ============================================================================
+  // Helper Methods - Encoding
+  // ============================================================================
+
+/**
+ * Normalize hex strings (remove 0x prefix if present)
+ * @param hexString - Hex string with or without 0x prefix
+ * @returns Normalized hex string without 0x prefix
+ */
+hexFix(hexString: string): string {
+  if (hexString.startsWith('0x') || hexString.startsWith('0X')) {
+    return hexString.slice(2);
+  }
+  return hexString;
+}
+
+/**
+ * Convert string to hex encoding
+ * @param str - String to convert
+ * @returns Hex-encoded string
+ */
+stringToHex(str: string): string {
+  let hex = '';
+  for (let i = 0; i < str.length; i++) {
+    const charCode = str.charCodeAt(i);
+    hex += charCode.toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
+/**
+ * Convert hex encoding to string
+ * @param hex - Hex-encoded string
+ * @returns Decoded string
+ */
+hexToString(hex: string): string {
+  const normalized = this.hexFix(hex);
+  let str = '';
+  for (let i = 0; i < normalized.length; i += 2) {
+    const charCode = parseInt(normalized.substr(i, 2), 16);
+    str += String.fromCharCode(charCode);
+  }
+  return str;
+}
+
+/**
+ * Pad number with leading zero if single digit
+ * @param num - Number to pad
+ * @returns Padded string
+ */
+private padNumber(num: number): string {
+  return num < 10 ? '0' + num : num.toString();
+}
+
+/**
+ * Get current timestamp in Circular Protocol format
+ * Format: YYYY:MM:DD-hh:mm:ss (UTC)
+ * @returns Formatted timestamp string
+ */
+getFormattedTimestamp(): string {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = this.padNumber(now.getUTCMonth() + 1);
+  const day = this.padNumber(now.getUTCDate());
+  const hours = this.padNumber(now.getUTCHours());
+  const minutes = this.padNumber(now.getUTCMinutes());
+  const seconds = this.padNumber(now.getUTCSeconds());
+
+  return `${year}:${month}:${day}-${hours}:${minutes}:${seconds}`;
+}
+
+  // ============================================================================
+  // Helper Methods - Configuration
+  // ============================================================================
+
+/**
+ * Set custom NAG endpoint URL
+ * @param url - NAG endpoint URL
+ */
+setNAGURL(url: string): void {
+  this.nagURL = url;
+}
+
+/**
+ * Get current NAG endpoint URL
+ * @returns Current NAG URL
+ */
+getNAGURL(): string {
+  return this.nagURL;
+}
+
+/**
+ * Set NAG API key for authenticated requests
+ * @param key - API key
+ */
+setNAGKey(key: string): void {
+  this.nagKey = key;
+}
+
+/**
+ * Get current NAG API key
+ * @returns Current NAG key
+ */
+getNAGKey(): string {
+  return this.nagKey;
+}
+
+  // ============================================================================
+  // Helper Methods - Advanced
+  // ============================================================================
+
+/**
+ * Get last error message
+ * @returns Last error message
+ */
+GetError(): string {
+  return this.lastError;
+}
+
+/**
+ * Handle error and store error message
+ * @param error - Error object or string
+ */
+private handleError(error: any): void {
+  if (error instanceof Error) {
+    this.lastError = error.message;
+  } else if (typeof error === 'string') {
+    this.lastError = error;
+  } else {
+    this.lastError = 'Unknown error';
+  }
+}
+
+/**
+ * Poll for transaction confirmation
+ * NOTE: Currently disabled - needs schema update to match actual API response
+ * @param blockchain - Blockchain network (e.g., 'MainNet', 'testnet')
+ * @param txID - Transaction ID to monitor
+ * @param start - Start block number for search
+ * @param end - End block number for search
+ * @param timeoutSec - Maximum time to wait in seconds (default: 120)
+ * @param intervalSec - Polling interval in seconds (default: 5)
+ * @returns Transaction response when confirmed
+ * @throws Error if transaction fails or times out
+ */
+async getTransactionOutcome(
+  blockchain: string,
+  txID: string,
+  start: string,
+  end: string,
+  timeoutSec: number = 120,
+  intervalSec: number = 5
+): Promise<any> {
+  const startTime = Date.now();
+  const timeoutMs = timeoutSec * 1000;
+  const intervalMs = intervalSec * 1000;
+
+  while (true) {
+    // Check if timeout exceeded
+    const elapsed = Date.now() - startTime;
+    if (elapsed >= timeoutMs) {
+      const error = `Transaction ${txID} timed out after ${timeoutSec} seconds`;
+      this.handleError(error);
+      throw new Error(error);
+    }
+
+    try {
+      // Check transaction status
+      const tx = await this.getTransactionbyID({
+        Blockchain: blockchain,
+        ID: txID,
+        Start: start,
+        End: end,
+        Version: '2.0.0-alpha.1',
+      });
+
+      // Check if transaction is confirmed (has BlockNumber)
+      if (tx.Response && tx.Response.BlockNumber && tx.Response.BlockNumber > 0) {
+        // Transaction confirmed
+        return tx;
+      }
+
+      // Still pending, wait before next check
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+
+    } catch (error) {
+      // If error is not just "pending", rethrow
+      if (error instanceof Error && !error.message.includes('pending')) {
+        this.handleError(error);
+        throw error;
+      }
+
+      // Otherwise, wait and retry
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
+  }
+}
 }
 
 // ============================================================================
