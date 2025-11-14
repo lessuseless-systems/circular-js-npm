@@ -589,7 +589,7 @@ test('E2E Write: Call smart contract function on blockchain', async () => {
   
   expect(result.Result).toBeDefined()
   
-      console.log('  ✅ Contract call executed (may have failed if contract doesn\\'t exist)')
+      console.log('  ✅ Contract call executed (may have failed if contract does not exist)')
       console.log('  📊 Result:', result.Result)
 }, 60000)
     })

@@ -14,7 +14,7 @@
  *   npm test
  */
 
-import { CircularProtocolAPI } from '../../dist/typescript/src/index'
+import { CircularProtocolAPI } from '../../dist/circular-ts/src/index'
 
 const API_URL = process.env.CIRCULAR_API_URL || 'http://localhost:8080'
 const API_VERSION = '1.0.8'
