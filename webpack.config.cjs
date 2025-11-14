@@ -3,9 +3,6 @@ const path = require('path');
 module.exports = {
   "devtool": "source-map",
   "entry": "./src/index.ts",
-  "experiments": {
-    "outputModule": true
-  },
   "externals": {
     "crypto": "crypto",
     "elliptic": "elliptic",
@@ -19,8 +16,8 @@ module.exports = {
   "module": {
     "rules": [
       {
-        "exclude": "/node_modules/",
-        "test": "/\\.ts$/",
+        "exclude": /node_modules/,
+        "test": /\.ts$/,
         "use": "ts-loader"
       }
     ]
@@ -30,10 +27,9 @@ module.exports = {
   },
   "output": {
     "clean": false,
-    "filename": "index.js",
-    "libraryTarget": "module",
-    "module": true,
-    "path": "path.resolve(__dirname, 'lib')"
+    "filename": "index.cjs",
+    "libraryTarget": "commonjs2",
+    "path": path.resolve(__dirname, 'lib')
   },
   "resolve": {
     "extensions": [

@@ -62,8 +62,8 @@
   },
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "webpack --config webpack.config.cjs.js",
-    "build:esm": "webpack --config webpack.config.esm.js",
+    "build:cjs": "webpack --config webpack.config.cjs",
+    "build:esm": "webpack --config webpack.config.mjs",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src/**/*.ts",
     "test": "jest",
