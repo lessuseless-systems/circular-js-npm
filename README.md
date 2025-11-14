@@ -1,262 +1,207 @@
-# Circular Protocol API - TypeScript/JavaScript SDK
+# Circular Protocol - TypeScript SDK
 
-[![npm version](https://img.shields.io/npm/v/circular-protocol-api.svg)](https://www.npmjs.com/package/circular-protocol-api)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.4+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-16+-green.svg)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/circular-protocol.svg)](https://www.npmjs.com/package/circular-protocol)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> Official API specification for Circular Protocol blockchain operations and wallet management
+The **Circular Protocol TypeScript SDK** is the official TypeScript/JavaScript library for seamless integration with the Circular blockchain ecosystem. This open-source SDK provides a comprehensive suite of tools for efficient and secure interaction with blockchain networks, managing wallets, assets, smart contracts, and more.
 
-Official TypeScript/JavaScript SDK for interacting with Circular Protocol blockchain networks. Provides a type-safe, promise-based API for wallet operations, transactions, smart contracts, assets, and more.
+## 🔥 Key Features
 
-**Version:** 2.0.0-alpha.1
-
-## Features
-
-- 🔒 **Fully Type-Safe** - Zero `any` types, complete TypeScript definitions
-- 📦 **Dual Module Support** - Both CommonJS and ES Modules
-- 🚀 **Promise-Based** - Modern async/await API
-- 🎯 **24 API Methods** - Complete coverage of Circular Protocol operations
-- ✅ **Runtime Validation** - Request/response validation
-- 📝 **Auto-Generated** - Generated from canonical Nickel specifications
-- 🧪 **Fully Tested** - Comprehensive unit and integration tests
-
-## Installation
+- **Blockchain Interaction**: Connect and interact with Circular's blockchain networks
+- **Smart Contracts**: Deploy, test, and interact with smart contracts
+- **Wallet Management**: Create, retrieve, and manage blockchain wallets with balance tracking
+- **Asset Management**: Issue and manage assets, handle transfers, and retrieve supply information
+- **Domain Management**: Resolve blockchain domain names to wallet addresses
+- **Transaction Management**: Send transactions, track status, and search the blockchain
+- **Analytics**: Access blockchain performance data and insights
+- **Cryptographic Helpers**: Built-in utilities for key generation, signing, and hashing
+- **TypeScript Support**: Full type definitions for enhanced developer experience
+- **Dual Module Support**: Works with both CommonJS (require) and ES Modules (import)
 
 ```bash
-# npm
-npm install circular-protocol-api
-
-# yarn
-yarn add circular-protocol-api
-
-# pnpm
-pnpm add circular-protocol-api
+npm install circular-protocol
 ```
 
-## Quick Start
+Or with Yarn:
 
-```typescript
-import { CircularProtocolAPI } from 'circular-protocol-api';
-
-// Initialize the API client
-const api = new CircularProtocolAPI({
-  nodeUrl: 'https://your-node-url.com',
-  blockchain: 'your-blockchain-id',
-});
-
-// Check if a wallet exists
-const walletExists = await api.checkWallet({
-  Address: '0x1234567890abcdef...',
-});
-
-console.log('Wallet exists:', walletExists.Result);
-
-// Get wallet information
-const wallet = await api.getWallet({
-  Address: '0x1234567890abcdef...',
-});
-
-console.log('Wallet balance:', wallet.Response.Balance);
+```bash
+yarn add circular-protocol
 ```
 
-## API Reference
+Or with pnpm:
 
-Complete API documentation for all 24 methods:
-
-### Wallet Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `checkWallet` | Check if wallet exists | POST |
-| `getWallet` | Get wallet information | POST |
-| `getLatestTransactions` | Get latest transactions for wallet | POST |
-| `getWalletBalance` | Get wallet balance for specific asset | POST |
-| `getWalletNonce` | Get wallet nonce | POST |
-| `registerWallet` | Register wallet on blockchain | POST |
-
-### Transaction Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `sendTransaction` | Submit transaction to blockchain | POST |
-| `getTransactionbyID` | Find transaction by ID | POST |
-| `getTransactionbyNode` | Find transactions by node ID | POST |
-| `getTransactionbyAddress` | Find transactions by address | POST |
-| `getTransactionbyDate` | Find transactions by date range | POST |
-| `getPendingTransaction` | Get pending transaction by ID | POST |
-
-### Block Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `getBlock` | Get specific block | POST |
-| `getBlockRange` | Get range of blocks | POST |
-| `getBlockCount` | Get blockchain height | POST |
-| `getAnalytics` | Get blockchain analytics | POST |
-
-### Asset Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `getAssetList` | List all assets on blockchain | POST |
-| `getAsset` | Get specific asset information | POST |
-| `getAssetSupply` | Get asset supply information | POST |
-| `getVoucher` | Retrieve voucher information | POST |
-
-### Smart Contract Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `testContract` | Test smart contract execution | POST |
-| `callContract` | Call smart contract function | POST |
-
-### Domain Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `getDomain` | Resolve domain to wallet address | POST |
-
-### Network Operations
-
-| Method | Description | HTTP Method |
-|--------|-------------|-------------|
-| `getBlockchains` | List available blockchains | POST |
-
-## Usage Examples
-
-### Check Wallet Exists
-
-```typescript
-const result = await api.checkWallet({
-  Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-});
-
-if (result.Result === 'true') {
-  console.log('Wallet exists on the blockchain');
-}
+```bash
+pnpm add circular-protocol
 ```
 
-### Get Wallet Information
+## 🚀 Quick Start
 
 ```typescript
-const wallet = await api.getWallet({
-  Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-});
+import { CircularProtocolAPI } from 'circular-protocol';
 
-console.log('Balance:', wallet.Response.Balance);
-console.log('Nonce:', wallet.Response.Nonce);
-console.log('Public Key:', wallet.Response.PublicKey);
-```
+async function main() {
+  // Initialize the API client
+  const api = new CircularProtocolAPI({
+    nagUrl: 'https://nag.circularlabs.io/NAG.php?cep=',
+    nagKey: 'your-api-key', // Optional
+  });
 
-### Send Transaction
+  try {
+    // Check if a wallet exists
+    const result = await api.checkWallet({
+      Address: '0xd55872dbe508fd27445889b9d81bbc9411bb0f1353153a249f2fb34ef2690310',
+      Blockchain: 'MainNet',
+      Version: '1.0.8',
+    });
 
-```typescript
-const txResult = await api.sendTransaction({
-  Transaction: {
-    From: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-    To: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-    Amount: '1000000',
-    Nonce: 1,
-    Timestamp: '2024:11:07-15:30:00',
-    Signature: '0x...',
-  },
-});
-
-console.log('Transaction ID:', txResult.Response.TransactionID);
-```
-
-### Get Transaction by ID
-
-```typescript
-const tx = await api.getTransactionbyID({
-  ID: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-});
-
-console.log('Transaction:', tx.Response);
-```
-
-### Get Asset Information
-
-```typescript
-const asset = await api.getAsset({
-  AssetName: 'MyToken',
-});
-
-console.log('Asset supply:', asset.Response.TotalSupply);
-console.log('Asset decimals:', asset.Response.Decimals);
-```
-
-## Configuration Options
-
-```typescript
-interface CircularProtocolConfig {
-  nodeUrl: string;           // Your Circular Protocol node URL
-  blockchain: string;        // Blockchain identifier
-  timeout?: number;          // Request timeout in ms (default: 30000)
-  retries?: number;          // Retry attempts (default: 3)
-  version?: string;          // API version (default: "2.0.0-alpha.1")
-}
-```
-
-## Error Handling
-
-All API methods throw typed errors for better error handling:
-
-```typescript
-try {
-  const wallet = await api.getWallet({ Address: 'invalid-address' });
-} catch (error) {
-  if (error instanceof ValidationError) {
-    console.error('Invalid address format:', error.message);
-  } else if (error instanceof NetworkError) {
-    console.error('Network error:', error.message);
-  } else {
-    console.error('Unknown error:', error);
+    console.log('Wallet exists:', result.Response);
+  } catch (error) {
+    if (error instanceof CircularAPIException) {
+      console.error('API Error:', error.message);
+    }
   }
 }
+
+main();
 ```
 
-## TypeScript Support
+## 📜 API Reference
 
-This package is written in TypeScript and includes complete type definitions:
+The Circular Protocol TypeScript SDK provides **39 methods** across multiple categories for comprehensive blockchain interaction.
 
-```typescript
-import type {
-  WalletInfo,
-  Transaction,
-  BlockInfo,
-  AssetInfo,
-} from 'circular-protocol-api';
+### Wallet Operations (5 methods)
 
-// All types are fully documented and type-safe
-const wallet: WalletInfo = await api.getWallet({ Address: '0x...' });
-```
+- **`checkWallet`** - Verify wallet existence on the blockchain
+- **`getWallet`** - Retrieve complete wallet details and metadata
+- **`getLatestTransactions`** - Get recent wallet activity and transaction history
+- **`getWalletBalance`** - Query current wallet balance across assets
+- **`getWalletNonce`** - Get transaction nonce for the wallet
 
-## Requirements
+### Transaction Operations (6 methods)
 
-- Node.js >= 16.0.0
-- TypeScript >= 5.0 (if using TypeScript)
+- **`sendTransaction`** - Submit new transaction to the blockchain
+- **`getPendingTransaction`** - Check transaction status in the mempool
+- **`getTransactionbyID`** - Query transaction by unique identifier
+- **`getTransactionbyNode`** - Query transactions by validator node
+- **`getTransactionbyAddress`** - Query all transactions for a wallet address
+- **`getTransactionbyDate`** - Query transactions within a date range
 
-## Contributing
+### Block Operations (4 methods)
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+- **`getBlock`** - Retrieve block data by block number or hash
+- **`getBlockRange`** - Query multiple blocks within a range
+- **`getBlockCount`** - Get current blockchain height (latest block number)
+- **`getAnalytics`** - Retrieve blockchain performance metrics and analytics
 
-## License
+### Contract Operations (2 methods)
 
-MIT © Danny De Novi
+- **`testContract`** - Validate smart contract logic before deployment
+- **`callContract`** - Execute smart contract function call
 
-## Support
+### Asset Operations (4 methods)
 
-- 📧 Email: support@circular.com
-- 🐛 Issues: [GitHub Issues](https://github.com/circular-protocol/circular-protocol-ts/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/circular-protocol/circular-protocol-ts/discussions)
+- **`getAssetList`** - List all available assets on the blockchain
+- **`getAsset`** - Get detailed asset information and metadata
+- **`getAssetSupply`** - Query total and circulating supply for an asset
+- **`getVoucher`** - Retrieve voucher data and redemption details
 
-## Related Projects
+### Domain Operations (1 method)
 
-- [circular-protocol-py](https://github.com/circular-protocol/circular-protocol-py) - Python SDK
-- [circular-canonical](https://github.com/circular-protocol/circular-canonical) - Canonical API specifications
+- **`getDomain`** - Query blockchain domain registry (resolve domain to address)
+
+### Network Operations (1 method)
+
+- **`getBlockchains`** - List all supported blockchain networks
 
 ---
 
-**Generated from canonical Nickel specifications** | [View Source](https://github.com/circular-protocol/circular-canonical)
+### Cryptographic Helpers (5 methods)
+
+- **`signMessage`** - Generate ECDSA secp256k1 signatures (DER format)
+- **`verifySignature`** - Verify message signatures against public keys
+- **`getPublicKey`** - Derive public key from private key (128 hex characters, uncompressed, no 0x04 prefix)
+- **`hashString`** - Generate SHA-256 hash of string input
+- **`getFormattedTimestamp`** - Get current UTC timestamp in Circular Protocol format (`YYYY:MM:DD-HH:mm:ss`)
+
+**Implementation Details:**
+- **TypeScript/JavaScript**: `crypto-browserify` (browser-compatible)
+- **Python**: `ecdsa` + `hashlib` (standard library)
+- **Java**: Bouncy Castle library for secp256k1
+- **PHP**: `phpseclib3` elliptic curve cryptography
+- **Go**: `btcsuite/btcd/btcec/v2` secp256k1
+- **Dart**: `pointycastle` package
+
+---
+
+### Encoding Helpers (4 methods)
+
+- **`hexFix`** - Normalize hex strings (remove `0x` prefix if present)
+- **`stringToHex`** - Convert UTF-8 string to hexadecimal encoding
+- **`hexToString`** - Convert hexadecimal string to UTF-8
+- **`padNumber`** - Zero-pad single-digit numbers (e.g., `5` → `"05"`)
+
+---
+
+### Advanced Helpers (3 methods)
+
+- **`GetError`** - Retrieve last error message from SDK
+- **`handleError`** - Internal error tracking and logging
+- **`getTransactionOutcome`** - Poll for transaction confirmation with automatic retries
+
+**Transaction Polling Behavior:**
+- Checks transaction status every **5 seconds** (configurable via `intervalSec`)
+- Returns successfully when transaction has `BlockNumber > 0` (confirmed)
+- Throws timeout error after **120 seconds** (configurable via `timeoutSec`)
+- Handles "pending" status gracefully with automatic retries
+- Distinguishes between temporary "pending" and permanent errors
+
+---
+
+### Convenience Methods (1 method)
+
+- **`registerWallet`** - Simplified wallet registration (wraps `sendTransaction`)
+
+**Implementation:**
+- Automatically derives `From` and `To` addresses via `hashString(publicKey)`
+- Constructs transaction payload: `{"Action": "CP_WALLET", "PublicKey": "..."}`
+- Sets default values: `Nonce="00000000"`, `Type="C"`, `Signature="0000..."`
+- Calculates transaction ID as SHA-256 hash of transaction fields
+- Returns same response structure as `sendTransaction`
+
+---
+
+## 📊 Total Methods: 39
+
+- **23** API Endpoint Methods
+- **5** Cryptographic Helpers
+- **4** Encoding Helpers
+- **3** Advanced Helpers
+- **3** Configuration Methods (getNagUrl, setNagUrl, getNagKey, setNagKey, setHeader, etc.)
+- **1** Convenience Method
+
+> **Note**: For detailed parameter types, response structures, and advanced usage examples, refer to the **[TypeScript SDK Documentation](https://circular-protocol.gitbook.io/circular-sdk/api-docs/typescript)**.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see the [CONTRIBUTING.md](https://github.com/circular-protocol/circular-canonical/blob/main/CONTRIBUTING.md) file in the canonical repository for guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📚 Resources
+
+- **[TypeScript SDK Documentation](https://circular-protocol.gitbook.io/circular-sdk/api-docs/typescript)** - Complete API reference
+- **[Circular Protocol Docs](https://circular-protocol.gitbook.io)** - Protocol documentation
+- **[Circular Canonical](https://github.com/circular-protocol/circular-canonical)** - Single source of truth
+- **[Package on npm](https://www.npmjs.com/package/circular-protocol)** - Official TypeScript/JavaScript package
+
+## ℹ️ About
+
+**Version**: 1.0.8
+**License**: MIT
+**Generated**: Auto-generated from [Circular Canonical](https://github.com/circular-protocol/circular-canonical) specification
+
+---
+
+© 2025 Circular Global Ledgers, Inc. - Open source for private and commercial use

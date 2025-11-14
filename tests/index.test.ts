@@ -17,7 +17,7 @@ describe('CircularProtocolAPI Unit Tests', () => {
   let api: CircularProtocolAPI
   let mockFetch: jest.MockedFunction<typeof fetch>
   const TEST_URL = 'http://test.api'
-  const API_VERSION = '2.0.0-alpha.1'
+  const API_VERSION = '1.0.8'
 
   beforeEach(() => {
     mockFetch = global.fetch as jest.MockedFunction<typeof fetch>

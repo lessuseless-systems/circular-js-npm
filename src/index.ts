@@ -1,7 +1,7 @@
 /**
  * Circular Protocol TypeScript SDK
  * Generated from Nickel API specification
- * Version: 2.0.0-alpha.1
+ * Version: 1.0.8
  */
 
 import { ec as EC } from 'elliptic';
@@ -42,13 +42,7 @@ export interface getWalletNonceRequest {
   Version: string;
 }
 
-export interface registerWalletRequest {
-  Blockchain: string;
-  PublicKey: string;
-  Version: string;
-}
-
-export interface sendTransactionRequest {
+export interface AddTransactionRequest {
   Blockchain: string;
   From: string;
   ID: string;
@@ -177,123 +171,118 @@ export interface getBlockchainsRequest {
 // ============================================================================
 
 export interface checkWalletResponse {
-  Response: { address: string; exists: boolean };
   Result: number;
+  Response: { Response: { address: string; exists: boolean }; Result: number };
 }
 
 export interface getWalletResponse {
-  Response: { Address: string; Balance: number; Nonce: number };
   Result: number;
+  Response: { Response: { Address: string; Balance: number; Nonce: number }; Result: number };
 }
 
 export interface getLatestTransactionsResponse {
-  Response: Array<{ Amount: number; From: string; ID: string; Timestamp: string; To: string }>;
   Result: number;
+  Response: { Response: Array<{ Amount: number; From: string; ID: string; Timestamp: string; To: string }>; Result: number };
 }
 
 export interface getWalletBalanceResponse {
-  Response: { Asset: string; Balance: number };
   Result: number;
+  Response: { Response: { Asset: string; Balance: number }; Result: number };
 }
 
 export interface getWalletNonceResponse {
-  Response: { Nonce: number };
   Result: number;
+  Response: { Response: { Nonce: number }; Result: number };
 }
 
-export interface registerWalletResponse {
-  Response: { Status: string; TransactionID: string };
+export interface AddTransactionResponse {
   Result: number;
-}
-
-export interface sendTransactionResponse {
-  Response: { Status: string; TransactionID: string };
-  Result: number;
+  Response: { Response: { Status: string; TransactionID: string }; Result: number };
 }
 
 export interface getPendingTransactionResponse {
-  Response: { From: string; ID: string; Status: string; To: string };
   Result: number;
+  Response: { Response: { From: string; ID: string; Status: string; To: string }; Result: number };
 }
 
 export interface getTransactionbyIDResponse {
-  Response: { BlockNumber: number; From: string; ID: string; Timestamp: string; To: string };
   Result: number;
+  Response: { Response: { BlockNumber: number; From: string; ID: string; Timestamp: string; To: string }; Result: number };
 }
 
 export interface getTransactionbyNodeResponse {
-  Response: Array<{ BlockNumber: number; ID: string; NodeID: string }>;
   Result: number;
+  Response: { Response: Array<{ BlockNumber: number; ID: string; NodeID: string }>; Result: number };
 }
 
 export interface getTransactionbyAddressResponse {
-  Response: Array<{ BlockNumber: number; From: string; ID: string; To: string }>;
   Result: number;
+  Response: { Response: Array<{ BlockNumber: number; From: string; ID: string; To: string }>; Result: number };
 }
 
 export interface getTransactionbyDateResponse {
-  Response: Array<{ From: string; ID: string; Timestamp: string; To: string }>;
   Result: number;
+  Response: { Response: Array<{ From: string; ID: string; Timestamp: string; To: string }>; Result: number };
 }
 
 export interface getBlockResponse {
-  Response: { BlockNumber: number; Hash: string; Timestamp: string; Transactions: Array<{  }> };
   Result: number;
+  Response: { Response: { BlockNumber: number; Hash: string; Timestamp: string; Transactions: Array<{  }> }; Result: number };
 }
 
 export interface getBlockRangeResponse {
-  Response: Array<{ BlockNumber: number; Timestamp: string; Transactions: Array<{  }> }>;
   Result: number;
+  Response: { Response: Array<{ BlockNumber: number; Timestamp: string; Transactions: Array<{  }> }>; Result: number };
 }
 
 export interface getBlockCountResponse {
-  Response: { BlockCount: number };
   Result: number;
+  Response: { Response: { BlockCount: number }; Result: number };
 }
 
 export interface getAnalyticsResponse {
-  Response: { BlockHeight: number; TotalAssets: number; TotalTransactions: number; TotalWallets: number };
   Result: number;
+  Response: { Response: { BlockHeight: number; TotalAssets: number; TotalTransactions: number; TotalWallets: number }; Result: number };
 }
 
 export interface testContractResponse {
-  Response: string;
   Result: number;
+  Response: { Response: string; Result: number };
 }
 
 export interface callContractResponse {
-  Response: string;
   Result: number;
+  Response: { Response: string; Result: number };
 }
 
 export interface getAssetListResponse {
-  Response: Array<{ AssetName: string }>;
   Result: number;
+  Response: { Response: Array<{ AssetName: string }>; Result: number };
 }
 
 export interface getAssetResponse {
-  Response: { AssetName: string; Decimals: number; Owner: string; TotalSupply: number };
   Result: number;
+  Response: { Response: { AssetName: string; Decimals: number; Owner: string; TotalSupply: number }; Result: number };
 }
 
 export interface getAssetSupplyResponse {
-  Response: { CirculatingSupply: number; ResidualSupply: number; TotalSupply: number };
   Result: number;
+  Response: { Response: { CirculatingSupply: number; ResidualSupply: number; TotalSupply: number }; Result: number };
 }
 
 export interface getVoucherResponse {
-  Response: { Asset: string; Code: string; Redeemed: boolean; Value: number };
   Result: number;
+  Response: { Response: { Asset: string; Code: string; Redeemed: boolean; Value: number }; Result: number };
 }
 
 export interface getDomainResponse {
-  Response: { Address: string; Domain: string };
   Result: number;
+  Response: { Response: { Address: string; Domain: string }; Result: number };
 }
 
 export interface getBlockchainsResponse {
-  Response: Array<{ Active: boolean; ChainID: string; Name: string }>;
   Result: number;
+  Response: { Response: Array<{ Active: boolean; ChainID: string; Name: string }>; Result: number };
 }
 
 // ============================================================================
@@ -312,13 +301,11 @@ export interface getBlockchainsResponse {
  * const result = await api.checkWallet({
  *   Blockchain: 'MainNet',
  *   Address: '0x...',
- *   Version: '2.0.0-alpha.1'
+ *   Version: '1.0.8'
  * });
  * ```
  */
 export class CircularProtocolAPI {
-  private readonly baseUrl: string;
-  private readonly apiKey: string;
   private readonly headers: Record<string, string>;
 private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
 private nagKey: string = '';
@@ -327,22 +314,26 @@ private lastError: string = '';
   /**
    * Create a new Circular Protocol API client
    *
-   * @param baseUrl - Base URL of the API server (default: https://api.circular.example)
-   * @param apiKey - Optional API key for authentication
+   * @param nagUrl - Optional NAG endpoint URL (default: https://nag.circularlabs.io/NAG.php?cep=)
+   * @param nagKey - Optional NAG API key for authentication
    */
-  constructor(baseUrl?: string, apiKey?: string) {
-    this.baseUrl = baseUrl || 'https://api.circular.example';
-    this.apiKey = apiKey || '';
+  constructor(nagUrl?: string, nagKey?: string) {
     this.headers = {};
+    if (nagUrl) {
+      this.setNAGURL(nagUrl);
+    }
+    if (nagKey) {
+      this.setNAGKey(nagKey);
+    }
   }
 
 /**
  * Make HTTP request to NAG endpoint
  * @param endpoint - Endpoint name (e.g., 'GetBlockchains')
  * @param data - Request payload
- * @returns API response
+ * @returns Full API response with Result and Response fields
  */
-private async _makeRequest(endpoint: string, data: any = {}): Promise<any> {
+private async _makeRequest(endpoint: string, data: any = {}): Promise<{ Result: number; Response: any }> {
   const url = `${this.nagURL}Circular_${endpoint}_`;
 
   const headers: Record<string, string> = {
@@ -365,14 +356,11 @@ private async _makeRequest(endpoint: string, data: any = {}): Promise<any> {
     throw new Error(`API error: ${response.statusText}`);
   }
 
-  const result = await response.json();
+  const result = await response.json() as { Result: number; Response: any };
 
-  // Check for API-level errors
-  if (result.Result !== 200) {
-    throw new Error(result.Response || 'API request failed');
-  }
-
-  return result.Response;
+  // Return full response including non-200 Result codes
+  // Let callers handle Result codes appropriately
+  return result;
 }
 
   // ============================================================================
@@ -385,7 +373,7 @@ private async _makeRequest(endpoint: string, data: any = {}): Promise<any> {
 Returns existence status and confirms the address format.
    */
   async checkWallet(req: checkWalletRequest): Promise<checkWalletResponse> {
-    return this._makeRequest('/checkWallet', req);
+    return this._makeRequest('CheckWallet', req);
   }
 
   /**
@@ -394,7 +382,7 @@ Returns existence status and confirms the address format.
 Returns all wallet properties including current state on the blockchain.
    */
   async getWallet(req: getWalletRequest): Promise<getWalletResponse> {
-    return this._makeRequest('/getWallet', req);
+    return this._makeRequest('GetWallet', req);
   }
 
   /**
@@ -403,7 +391,7 @@ Returns all wallet properties including current state on the blockchain.
 Returns an array of transaction objects with details.
    */
   async getLatestTransactions(req: getLatestTransactionsRequest): Promise<getLatestTransactionsResponse> {
-    return this._makeRequest('/getLatestTransactions', req);
+    return this._makeRequest('GetLatestTransactions', req);
   }
 
   /**
@@ -412,7 +400,7 @@ Returns an array of transaction objects with details.
 Returns the balance amount for the requested asset.
    */
   async getWalletBalance(req: getWalletBalanceRequest): Promise<getWalletBalanceResponse> {
-    return this._makeRequest('/getWalletBalance', req);
+    return this._makeRequest('GetWalletBalance', req);
   }
 
   /**
@@ -421,17 +409,7 @@ Returns the balance amount for the requested asset.
 The nonce is used for transaction ordering and must increment with each transaction.
    */
   async getWalletNonce(req: getWalletNonceRequest): Promise<getWalletNonceResponse> {
-    return this._makeRequest('/getWalletNonce', req);
-  }
-
-  /**
-   * Register wallet on blockchain
-   * Registers a wallet on a desired blockchain. The same wallet can be registered
-on multiple blockchains. Without registration, the wallet will not be reachable
-on the blockchain. This endpoint constructs a transaction of type C_TYPE_REGISTERWALLET.
-   */
-  async registerWallet(req: registerWalletRequest): Promise<registerWalletResponse> {
-    return this._makeRequest('/registerWallet', req);
+    return this._makeRequest('GetWalletNonce', req);
   }
 
   /**
@@ -439,8 +417,8 @@ on the blockchain. This endpoint constructs a transaction of type C_TYPE_REGISTE
    * Submits a transaction to the blockchain. Requires a complete signed transaction
 including ID, addresses, payload, nonce, and signature.
    */
-  async sendTransaction(req: sendTransactionRequest): Promise<sendTransactionResponse> {
-    return this._makeRequest('/sendTransaction', req);
+  async addTransaction(req: AddTransactionRequest): Promise<AddTransactionResponse> {
+    return this._makeRequest('AddTransaction', req);
   }
 
   /**
@@ -449,7 +427,7 @@ including ID, addresses, payload, nonce, and signature.
 Returns the transaction if it exists and is still pending.
    */
   async getPendingTransaction(req: getPendingTransactionRequest): Promise<getPendingTransactionResponse> {
-    return this._makeRequest('/getPendingTransaction', req);
+    return this._makeRequest('GetPendingTransaction', req);
   }
 
   /**
@@ -458,7 +436,7 @@ Returns the transaction if it exists and is still pending.
 Searches through blocks to locate the transaction.
    */
   async getTransactionbyID(req: getTransactionbyIDRequest): Promise<getTransactionbyIDResponse> {
-    return this._makeRequest('/getTransactionbyID', req);
+    return this._makeRequest('GetTransactionbyID', req);
   }
 
   /**
@@ -467,7 +445,7 @@ Searches through blocks to locate the transaction.
 Returns all transactions associated with the node.
    */
   async getTransactionbyNode(req: getTransactionbyNodeRequest): Promise<getTransactionbyNodeResponse> {
-    return this._makeRequest('/getTransactionbyNode', req);
+    return this._makeRequest('GetTransactionbyNode', req);
   }
 
   /**
@@ -476,7 +454,7 @@ Returns all transactions associated with the node.
 Returns transactions where the address is sender or recipient.
    */
   async getTransactionbyAddress(req: getTransactionbyAddressRequest): Promise<getTransactionbyAddressResponse> {
-    return this._makeRequest('/getTransactionbyAddress', req);
+    return this._makeRequest('GetTransactionbyAddress', req);
   }
 
   /**
@@ -485,7 +463,7 @@ Returns transactions where the address is sender or recipient.
 Returns all transactions for the address between the dates.
    */
   async getTransactionbyDate(req: getTransactionbyDateRequest): Promise<getTransactionbyDateResponse> {
-    return this._makeRequest('/getTransactionbyDate', req);
+    return this._makeRequest('GetTransactionbyDate', req);
   }
 
   /**
@@ -494,7 +472,7 @@ Returns all transactions for the address between the dates.
 Returns complete block information including transactions and hash.
    */
   async getBlock(req: getBlockRequest): Promise<getBlockResponse> {
-    return this._makeRequest('/getBlock', req);
+    return this._makeRequest('GetBlock', req);
   }
 
   /**
@@ -503,7 +481,7 @@ Returns complete block information including transactions and hash.
 If End = 0, then Start is the number of blocks from the last one minted going backward.
    */
   async getBlockRange(req: getBlockRangeRequest): Promise<getBlockRangeResponse> {
-    return this._makeRequest('/getBlockRange', req);
+    return this._makeRequest('GetBlockRange', req);
   }
 
   /**
@@ -512,7 +490,7 @@ If End = 0, then Start is the number of blocks from the last one minted going ba
 Also known as getBlockHeight in some documentation.
    */
   async getBlockCount(req: getBlockCountRequest): Promise<getBlockCountResponse> {
-    return this._makeRequest('/getBlockCount', req);
+    return this._makeRequest('GetBlockCount', req);
   }
 
   /**
@@ -521,7 +499,7 @@ Also known as getBlockHeight in some documentation.
 Returns comprehensive information about the blockchain state.
    */
   async getAnalytics(req: getAnalyticsRequest): Promise<getAnalyticsResponse> {
-    return this._makeRequest('/getAnalytics', req);
+    return this._makeRequest('GetAnalytics', req);
   }
 
   /**
@@ -530,7 +508,7 @@ Returns comprehensive information about the blockchain state.
 Useful for testing contract logic before deploying or executing.
    */
   async testContract(req: testContractRequest): Promise<testContractResponse> {
-    return this._makeRequest('/testContract', req);
+    return this._makeRequest('TestContract', req);
   }
 
   /**
@@ -539,7 +517,7 @@ Useful for testing contract logic before deploying or executing.
 Executes the specified function with provided parameters.
    */
   async callContract(req: callContractRequest): Promise<callContractResponse> {
-    return this._makeRequest('/callContract', req);
+    return this._makeRequest('CallContract', req);
   }
 
   /**
@@ -548,7 +526,7 @@ Executes the specified function with provided parameters.
 Returns an array of asset information.
    */
   async getAssetList(req: getAssetListRequest): Promise<getAssetListResponse> {
-    return this._makeRequest('/getAssetList', req);
+    return this._makeRequest('GetAssetList', req);
   }
 
   /**
@@ -557,7 +535,7 @@ Returns an array of asset information.
 Returns detailed information about the specified asset.
    */
   async getAsset(req: getAssetRequest): Promise<getAssetResponse> {
-    return this._makeRequest('/getAsset', req);
+    return this._makeRequest('GetAsset', req);
   }
 
   /**
@@ -566,7 +544,7 @@ Returns detailed information about the specified asset.
 Returns comprehensive supply metrics.
    */
   async getAssetSupply(req: getAssetSupplyRequest): Promise<getAssetSupplyResponse> {
-    return this._makeRequest('/getAssetSupply', req);
+    return this._makeRequest('GetAssetSupply', req);
   }
 
   /**
@@ -575,7 +553,7 @@ Returns comprehensive supply metrics.
 Code is automatically stripped of 0x prefix if present.
    */
   async getVoucher(req: getVoucherRequest): Promise<getVoucherResponse> {
-    return this._makeRequest('/getVoucher', req);
+    return this._makeRequest('GetVoucher', req);
   }
 
   /**
@@ -585,7 +563,7 @@ A single wallet can have multiple domain associations.
 Also known as resolveDomain.
    */
   async getDomain(req: getDomainRequest): Promise<getDomainResponse> {
-    return this._makeRequest('/getDomain', req);
+    return this._makeRequest('GetDomain', req);
   }
 
   /**
@@ -594,7 +572,68 @@ Also known as resolveDomain.
 Returns information about all active and inactive blockchains.
    */
   async getBlockchains(req: getBlockchainsRequest): Promise<getBlockchainsResponse> {
-    return this._makeRequest('/getBlockchains', req);
+    return this._makeRequest('GetBlockchains', req);
+  }
+
+  // ============================================================================
+  // Convenience Methods
+  // ============================================================================
+  // These methods wrap underlying API calls to simplify common workflows
+
+  /**
+   * Register wallet on blockchain (Convenience Method)
+   * Registers a wallet on the specified blockchain by creating and sending
+a C_TYPE_REGISTERWALLET transaction. This convenience method handles all
+transaction construction internally:
+
+- Derives From/To addresses from public key (sha256)
+- Builds Payload: hex(JSON.stringify({Action: "CP_REGISTERWALLET", PublicKey: publicKey}))
+- Calculates transaction ID: sha256(blockchain + from + to + payload + nonce + timestamp)
+- Sets Nonce to "0" and Signature to "" (empty for registration)
+- Calls sendTransaction with constructed parameters
+
+Without registration, the wallet will not be reachable on the blockchain.
+The same wallet can be registered on multiple blockchains.
+   *
+   * This is a convenience method that wraps sendTransaction().
+   * It handles transaction construction internally.
+   *
+   * @param blockchain - Blockchain where the wallet will be registered
+   * @param publicKey - Wallet public key (128 hex characters)
+   * @returns Promise<SendTransactionResponse>
+   */
+  async registerWallet(blockchain: string, publicKey: string): Promise<SendTransactionResponse> {
+    // Derive addresses from public key
+    const from = this.hashString(publicKey);
+    const to = from;
+    const nonce = '0';
+    const type = 'C_TYPE_REGISTERWALLET';
+
+    // Build payload
+    const payloadObj = {
+      Action: 'CP_REGISTERWALLET',
+      PublicKey: publicKey
+    };
+    const payload = this.stringToHex(JSON.stringify(payloadObj));
+    const timestamp = this.getFormattedTimestamp();
+
+    // Calculate transaction ID
+    const id = this.hashString(blockchain + from + to + payload + nonce + timestamp);
+    const signature = '';
+
+    // Call sendTransaction
+    return this.sendTransaction({
+      ID: id,
+      From: from,
+      To: to,
+      Timestamp: timestamp,
+      Type: type,
+      Payload: payload,
+      Nonce: nonce,
+      Signature: signature,
+      Blockchain: blockchain,
+      Version: this.version || '1.0.8'
+    });
   }
 
   // ============================================================================

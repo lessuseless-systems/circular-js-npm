@@ -1,4 +1,26 @@
 jobs:
+  e2e-tests:
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        cache: npm
+        node-version: 20.x
+    - name: Install dependencies
+      run: npm ci
+    - continue-on-error: true
+      env:
+        CIRCULAR_API_KEY: ${{ secrets.CIRCULAR_API_KEY }}
+        CIRCULAR_NAG_URL: ${{ secrets.CIRCULAR_NAG_URL }}
+        CIRCULAR_TEST_ADDRESS: ${{ secrets.CIRCULAR_TEST_ADDRESS }}
+        CIRCULAR_TEST_BLOCKCHAIN: ${{ secrets.CIRCULAR_TEST_BLOCKCHAIN }}
+      name: Run E2E tests (read-only)
+      run: npm run test:e2e
   publish-alpha:
     if: github.ref == 'refs/heads/development' && github.event_name == 'push'
     needs: test
@@ -57,7 +79,7 @@ jobs:
       run: npm run lint
     - name: Type check
       run: npx tsc --noEmit
-    - name: Run tests
+    - name: Run unit tests
       run: npm test
     - name: Build package
       run: npm run build
