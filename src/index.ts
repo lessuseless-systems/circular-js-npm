@@ -373,9 +373,28 @@ private async _makeRequest(endpoint: string, data: any = {}): Promise<{ Result: 
   // ============================================================================
 
   /**
-   * Check if wallet exists
-   * Checks whether a wallet address exists on the specified blockchain.
-Returns existence status and confirms the address format.
+   * Check if wallet exists on the blockchain
+   *
+   * Verifies whether a wallet address exists on the specified blockchain.
+   * Returns existence status and confirms the address format is valid.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to check. Auto-strips '0x' prefix.
+   * @returns Promise resolving to wallet existence status
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const exists = await api.checkWallet('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+   *
+   * @example
+   * // Request object style
+   * const exists = await api.checkWallet({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+   * });
+   *
+   * @see {@link getWallet} for retrieving complete wallet information
+   * @see {@link getWalletBalance} for checking specific asset balance
    */
   async checkWallet(blockchain: string, address: string): Promise<checkWalletResponse>;
   async checkWallet(req: checkWalletRequest): Promise<checkWalletResponse>;
@@ -396,9 +415,30 @@ Returns existence status and confirms the address format.
   }
 
   /**
-   * Get wallet information
-   * Retrieves complete wallet information including balance and nonce.
-Returns all wallet properties including current state on the blockchain.
+   * Get complete wallet information
+   *
+   * Retrieves comprehensive wallet information including balance, nonce, and state.
+   * Returns all wallet properties and current status on the blockchain.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to query. Auto-strips '0x' prefix.
+   * @returns Promise resolving to complete wallet information
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const wallet = await api.getWallet('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+   * console.log(wallet.Response.Balance, wallet.Response.Nonce);
+   *
+   * @example
+   * // Request object style
+   * const wallet = await api.getWallet({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+   * });
+   *
+   * @see {@link checkWallet} for checking if wallet exists
+   * @see {@link getWalletBalance} for checking specific asset balance
+   * @see {@link getWalletNonce} for retrieving only the nonce
    */
   async getWallet(blockchain: string, address: string): Promise<getWalletResponse>;
   async getWallet(req: getWalletRequest): Promise<getWalletResponse>;
@@ -419,9 +459,29 @@ Returns all wallet properties including current state on the blockchain.
   }
 
   /**
-   * Get latest transactions for wallet
-   * Retrieves the latest transactions for a wallet address.
-Returns an array of transaction objects with details.
+   * Get latest transactions for a wallet
+   *
+   * Retrieves the most recent transactions associated with a wallet address.
+   * Returns an array of transaction objects with complete details.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to query. Auto-strips '0x' prefix.
+   * @returns Promise resolving to array of latest transactions
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const txs = await api.getLatestTransactions('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+   * txs.Response.forEach(tx => console.log(tx.ID, tx.Type));
+   *
+   * @example
+   * // Request object style
+   * const txs = await api.getLatestTransactions({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+   * });
+   *
+   * @see {@link getTransactionbyID} for getting a specific transaction
+   * @see {@link getTransactionbyAddress} for querying transactions in a range
    */
   async getLatestTransactions(blockchain: string, address: string): Promise<getLatestTransactionsResponse>;
   async getLatestTransactions(req: getLatestTransactionsRequest): Promise<getLatestTransactionsResponse>;
@@ -442,9 +502,31 @@ Returns an array of transaction objects with details.
   }
 
   /**
-   * Get wallet balance for specific asset
+   * Get wallet balance for a specific asset
+   *
    * Retrieves the balance of a specified asset in a wallet.
-Returns the balance amount for the requested asset.
+   * Returns the current balance amount for the requested asset.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to query. Auto-strips '0x' prefix.
+   * @param asset - Asset symbol to check (e.g., 'CIRX', 'BTC', 'ETH')
+   * @returns Promise resolving to asset balance information
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const balance = await api.getWalletBalance('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', 'CIRX');
+   * console.log(`Balance: ${balance.Response.Balance} CIRX`);
+   *
+   * @example
+   * // Request object style
+   * const balance = await api.getWalletBalance({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   Asset: 'CIRX'
+   * });
+   *
+   * @see {@link getWallet} for complete wallet information
+   * @see {@link getAsset} for asset details
    */
   async getWalletBalance(blockchain: string, address: string, asset: string): Promise<getWalletBalanceResponse>;
   async getWalletBalance(req: getWalletBalanceRequest): Promise<getWalletBalanceResponse>;
@@ -466,9 +548,29 @@ Returns the balance amount for the requested asset.
   }
 
   /**
-   * Get wallet nonce
+   * Get wallet nonce (transaction counter)
+   *
    * Retrieves the nonce (transaction counter) of a wallet.
-The nonce is used for transaction ordering and must increment with each transaction.
+   * The nonce is used for transaction ordering and must increment with each transaction.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to query. Auto-strips '0x' prefix.
+   * @returns Promise resolving to wallet nonce
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const result = await api.getWalletNonce('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+   * console.log(`Current nonce: ${result.Response.Nonce}`);
+   *
+   * @example
+   * // Request object style
+   * const result = await api.getWalletNonce({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+   * });
+   *
+   * @see {@link getWallet} for complete wallet information including nonce
+   * @see {@link sendTransaction} for submitting transactions with nonce
    */
   async getWalletNonce(blockchain: string, address: string): Promise<getWalletNonceResponse>;
   async getWalletNonce(req: getWalletNonceRequest): Promise<getWalletNonceResponse>;
@@ -490,8 +592,30 @@ The nonce is used for transaction ordering and must increment with each transact
 
   /**
    * Submit transaction to blockchain
-   * Submits a transaction to the blockchain. Requires a complete signed transaction
-including ID, addresses, payload, nonce, and signature.
+   *
+   * Submits a complete signed transaction to the blockchain.
+   * Requires all transaction fields including ID, addresses, payload, nonce, and signature.
+   *
+   * @param req - Complete transaction request object
+   * @returns Promise resolving to transaction submission response
+   *
+   * @example
+   * const result = await api.addTransaction({
+   *   ID: transactionHash,
+   *   From: senderAddress,
+   *   To: receiverAddress,
+   *   Timestamp: '2025:11:15-12:30:00',
+   *   Type: 'C_TYPE_TRANSACTION',
+   *   Payload: payloadHex,
+   *   Nonce: '0',
+   *   Signature: signatureHex,
+   *   Blockchain: 'MainNet',
+   *   Version: '1.0.8'
+   * });
+   *
+   * @see {@link sendTransaction} for convenient positional parameter version
+   * @see {@link getPendingTransaction} for checking transaction status
+   * @see {@link registerWallet} for wallet registration transactions
    */
   async addTransaction(req: AddTransactionRequest): Promise<AddTransactionResponse> {
     return this._makeRequest('AddTransaction', req);
@@ -541,8 +665,28 @@ including ID, addresses, payload, nonce, and signature.
 
   /**
    * Get pending transaction by ID
-   * Searches for a transaction by ID among pending transactions.
-Returns the transaction if it exists and is still pending.
+   *
+   * Searches for a transaction by ID among pending (unconfirmed) transactions.
+   * Returns the transaction if it exists and is still pending confirmation.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param txID - Transaction ID (hash) to search for. Auto-strips '0x' prefix.
+   * @returns Promise resolving to pending transaction details
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const tx = await api.getPendingTransaction('MainNet', '0xabc123...');
+   * console.log(tx.Response.Status);
+   *
+   * @example
+   * // Request object style
+   * const tx = await api.getPendingTransaction({
+   *   Blockchain: 'MainNet',
+   *   ID: '0xabc123...'
+   * });
+   *
+   * @see {@link getTransactionbyID} for searching confirmed transactions
+   * @see {@link sendTransaction} for submitting transactions
    */
   async getPendingTransaction(blockchain: string, txID: string): Promise<getPendingTransactionResponse>;
   async getPendingTransaction(req: getPendingTransactionRequest): Promise<getPendingTransactionResponse>;
@@ -563,9 +707,34 @@ Returns the transaction if it exists and is still pending.
   }
 
   /**
-   * Find transaction by ID
-   * Finds a transaction by ID within a specified block range.
-Searches through blocks to locate the transaction.
+   * Query transaction by ID within block range
+   *
+   * Finds a confirmed transaction by its ID within a specified block range.
+   * Searches through blocks from start to end to locate the transaction.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param txID - Transaction ID (hash) to search for. Auto-strips '0x' prefix.
+   * @param start - Starting block number for search range
+   * @param end - Ending block number for search range
+   * @returns Promise resolving to transaction details including block number and timestamp
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const tx = await api.getTransactionbyID('MainNet', '0xabc123...', '1000', '2000');
+   * console.log(tx.Response.BlockNumber, tx.Response.Timestamp);
+   *
+   * @example
+   * // Request object style
+   * const tx = await api.getTransactionbyID({
+   *   Blockchain: 'MainNet',
+   *   ID: '0xabc123...',
+   *   Start: '1000',
+   *   End: '2000'
+   * });
+   *
+   * @see {@link getPendingTransaction} for searching pending (unconfirmed) transactions
+   * @see {@link getTransactionbyAddress} for finding all transactions by address
+   * @see {@link getLatestTransactions} for recent wallet transactions
    */
   async getTransactionbyID(blockchain: string, txID: string, start: string, end: string): Promise<getTransactionbyIDResponse>;
   async getTransactionbyID(req: getTransactionbyIDRequest): Promise<getTransactionbyIDResponse>;
@@ -588,9 +757,33 @@ Searches through blocks to locate the transaction.
   }
 
   /**
-   * Find transactions by node ID
-   * Finds transactions by node ID within a specified block range.
-Returns all transactions associated with the node.
+   * Get transactions by node ID within block range
+   *
+   * Retrieves all transactions associated with a specific node ID within a block range.
+   * Returns an array of transactions that were processed or validated by the specified node.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param nodeID - Node identifier to search for. Auto-strips '0x' prefix.
+   * @param start - Starting block number for search range
+   * @param end - Ending block number for search range
+   * @returns Promise resolving to array of transactions associated with the node
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const txs = await api.getTransactionbyNode('MainNet', '0xnode123...', '1000', '2000');
+   * txs.Response.forEach(tx => console.log(tx.ID, tx.BlockNumber));
+   *
+   * @example
+   * // Request object style
+   * const txs = await api.getTransactionbyNode({
+   *   Blockchain: 'MainNet',
+   *   NodeID: '0xnode123...',
+   *   Start: '1000',
+   *   End: '2000'
+   * });
+   *
+   * @see {@link getTransactionbyID} for finding a specific transaction
+   * @see {@link getTransactionbyAddress} for finding transactions by wallet address
    */
   async getTransactionbyNode(blockchain: string, nodeID: string, start: string, end: string): Promise<getTransactionbyNodeResponse>;
   async getTransactionbyNode(req: getTransactionbyNodeRequest): Promise<getTransactionbyNodeResponse>;
@@ -613,9 +806,34 @@ Returns all transactions associated with the node.
   }
 
   /**
-   * Find transactions by address
-   * Finds transactions by wallet address within a specified block range.
-Returns transactions where the address is sender or recipient.
+   * Get transactions for address within block range
+   *
+   * Retrieves all transactions involving a wallet address within a specified block range.
+   * Returns transactions where the address is either sender or recipient.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to search for. Auto-strips '0x' prefix.
+   * @param start - Starting block number for search range
+   * @param end - Ending block number for search range
+   * @returns Promise resolving to array of transactions involving the address
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const txs = await api.getTransactionbyAddress('MainNet', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', '1000', '2000');
+   * txs.Response.forEach(tx => console.log(tx.From, tx.To, tx.BlockNumber));
+   *
+   * @example
+   * // Request object style
+   * const txs = await api.getTransactionbyAddress({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   Start: '1000',
+   *   End: '2000'
+   * });
+   *
+   * @see {@link getLatestTransactions} for recent transactions without specifying range
+   * @see {@link getTransactionbyDate} for searching by date range instead of block range
+   * @see {@link getTransactionbyID} for finding a specific transaction
    */
   async getTransactionbyAddress(blockchain: string, address: string, start: string, end: string): Promise<getTransactionbyAddressResponse>;
   async getTransactionbyAddress(req: getTransactionbyAddressRequest): Promise<getTransactionbyAddressResponse>;
@@ -638,9 +856,38 @@ Returns transactions where the address is sender or recipient.
   }
 
   /**
-   * Find transactions by date range
-   * Finds transactions by wallet address within a specified date range.
-Returns all transactions for the address between the dates.
+   * Get transactions for address within date range
+   *
+   * Retrieves all transactions involving a wallet address within a specified date/time range.
+   * Returns transactions where the address is either sender or recipient, filtered by timestamp.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param address - Wallet address to search for. Auto-strips '0x' prefix.
+   * @param startDate - Start date/time in format YYYY:MM:DD-hh:mm:ss (e.g., '2025:01:15-10:30:00')
+   * @param endDate - End date/time in format YYYY:MM:DD-hh:mm:ss (e.g., '2025:01:15-18:45:00')
+   * @returns Promise resolving to array of transactions within the date range
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const txs = await api.getTransactionbyDate(
+   *   'MainNet',
+   *   '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   '2025:01:15-00:00:00',
+   *   '2025:01:15-23:59:59'
+   * );
+   * txs.Response.forEach(tx => console.log(tx.ID, tx.Timestamp));
+   *
+   * @example
+   * // Request object style
+   * const txs = await api.getTransactionbyDate({
+   *   Blockchain: 'MainNet',
+   *   Address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   StartDate: '2025:01:15-00:00:00',
+   *   EndDate: '2025:01:15-23:59:59'
+   * });
+   *
+   * @see {@link getTransactionbyAddress} for searching by block range instead of date range
+   * @see {@link getLatestTransactions} for recent transactions without date filtering
    */
   async getTransactionbyDate(blockchain: string, address: string, startDate: string, endDate: string): Promise<getTransactionbyDateResponse>;
   async getTransactionbyDate(req: getTransactionbyDateRequest): Promise<getTransactionbyDateResponse>;
@@ -663,9 +910,31 @@ Returns all transactions for the address between the dates.
   }
 
   /**
-   * Get specific block
-   * Retrieves a desired block by block number.
-Returns complete block information including transactions and hash.
+   * Get block by block number
+   *
+   * Retrieves complete information for a specific block by its block number.
+   * Returns block details including hash, timestamp, and all contained transactions.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param blockNumber - Block number/ID to retrieve
+   * @returns Promise resolving to complete block information
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const block = await api.getBlock('MainNet', '12345');
+   * console.log(block.Response.Hash, block.Response.Timestamp);
+   * console.log(`Transactions: ${block.Response.Transactions.length}`);
+   *
+   * @example
+   * // Request object style
+   * const block = await api.getBlock({
+   *   Blockchain: 'MainNet',
+   *   BlockNumber: '12345'
+   * });
+   *
+   * @see {@link getBlockRange} for retrieving multiple blocks at once
+   * @see {@link getBlockCount} for getting the current block height
+   * @see {@link getTransactionbyID} for retrieving specific transactions
    */
   async getBlock(blockchain: string, blockNumber: string): Promise<getBlockResponse>;
   async getBlock(req: getBlockRequest): Promise<getBlockResponse>;
@@ -685,9 +954,35 @@ Returns complete block information including transactions and hash.
   }
 
   /**
-   * Get range of blocks
-   * Retrieves all blocks in a specified range.
-If End = 0, then Start is the number of blocks from the last one minted going backward.
+   * Get multiple blocks in a range
+   *
+   * Retrieves all blocks within a specified range of block numbers.
+   * Special case: If End = '0', Start represents the number of blocks to fetch backward from the latest block.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param start - Starting block number (or count from latest if end is '0')
+   * @param end - Ending block number (use '0' to fetch last N blocks, where N = start)
+   * @returns Promise resolving to array of blocks with their transactions
+   *
+   * @example
+   * // Positional parameters (recommended) - Get blocks 1000 through 1100
+   * const blocks = await api.getBlockRange('MainNet', '1000', '1100');
+   * blocks.Response.forEach(block => console.log(block.BlockNumber, block.Timestamp));
+   *
+   * @example
+   * // Get last 50 blocks (End = 0)
+   * const recentBlocks = await api.getBlockRange('MainNet', '50', '0');
+   *
+   * @example
+   * // Request object style
+   * const blocks = await api.getBlockRange({
+   *   Blockchain: 'MainNet',
+   *   Start: '1000',
+   *   End: '1100'
+   * });
+   *
+   * @see {@link getBlock} for retrieving a single block
+   * @see {@link getBlockCount} for getting the current block height
    */
   async getBlockRange(blockchain: string, start: string, end: string): Promise<getBlockRangeResponse>;
   async getBlockRange(req: getBlockRangeRequest): Promise<getBlockRangeResponse>;
@@ -708,9 +1003,28 @@ If End = 0, then Start is the number of blocks from the last one minted going ba
   }
 
   /**
-   * Get blockchain height
-   * Retrieves the blockchain block height (total number of blocks).
-Also known as getBlockHeight in some documentation.
+   * Get current block height/count
+   *
+   * Retrieves the current block height (total number of blocks) on the blockchain.
+   * Returns the most recent block number, useful for determining the blockchain's current state.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @returns Promise resolving to current block count
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const result = await api.getBlockCount('MainNet');
+   * console.log(`Current block height: ${result.Response.BlockCount}`);
+   *
+   * @example
+   * // Request object style
+   * const result = await api.getBlockCount({
+   *   Blockchain: 'MainNet'
+   * });
+   *
+   * @see {@link getBlock} for retrieving a specific block
+   * @see {@link getBlockRange} for retrieving multiple blocks
+   * @see {@link getAnalytics} for comprehensive blockchain statistics
    */
   async getBlockCount(blockchain: string): Promise<getBlockCountResponse>;
   async getBlockCount(req: getBlockCountRequest): Promise<getBlockCountResponse>;
@@ -729,9 +1043,29 @@ Also known as getBlockHeight in some documentation.
   }
 
   /**
-   * Get blockchain analytics
-   * Retrieves blockchain analytics and statistics.
-Returns comprehensive information about the blockchain state.
+   * Get blockchain analytics and statistics
+   *
+   * Retrieves comprehensive analytics and statistics about the blockchain.
+   * Returns key metrics including block height, total transactions, wallets, and assets.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @returns Promise resolving to blockchain analytics including BlockHeight, TotalTransactions, TotalWallets, TotalAssets
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const stats = await api.getAnalytics('MainNet');
+   * console.log(`Block Height: ${stats.Response.BlockHeight}`);
+   * console.log(`Total Wallets: ${stats.Response.TotalWallets}`);
+   * console.log(`Total Assets: ${stats.Response.TotalAssets}`);
+   *
+   * @example
+   * // Request object style
+   * const stats = await api.getAnalytics({
+   *   Blockchain: 'MainNet'
+   * });
+   *
+   * @see {@link getBlockCount} for getting only the current block height
+   * @see {@link getAssetList} for listing all assets
    */
   async getAnalytics(blockchain: string): Promise<getAnalyticsResponse>;
   async getAnalytics(req: getAnalyticsRequest): Promise<getAnalyticsResponse>;
@@ -750,9 +1084,34 @@ Returns comprehensive information about the blockchain state.
   }
 
   /**
-   * Test smart contract execution
-   * Tests smart contract execution locally without sending a transaction.
-Useful for testing contract logic before deploying or executing.
+   * Test smart contract execution (dry run)
+   *
+   * Tests smart contract execution locally without sending a transaction to the blockchain.
+   * Useful for validating contract logic and parameters before actual deployment or execution.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param from - Wallet address executing the test. Auto-strips '0x' prefix.
+   * @param project - Smart contract code/project to test (auto-converted to hex via stringToHex)
+   * @returns Promise resolving to test execution result
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const result = await api.testContract(
+   *   'MainNet',
+   *   '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   'contract code here'
+   * );
+   * console.log(result.Response);
+   *
+   * @example
+   * // Request object style
+   * const result = await api.testContract({
+   *   Blockchain: 'MainNet',
+   *   From: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   Project: 'contract code here'
+   * });
+   *
+   * @see {@link callContract} for executing deployed contracts
    */
   async testContract(blockchain: string, from: string, project: string): Promise<testContractResponse>;
   async testContract(req: testContractRequest): Promise<testContractResponse>;
@@ -776,9 +1135,37 @@ Useful for testing contract logic before deploying or executing.
   }
 
   /**
-   * Call smart contract function
-   * Calls a smart contract function on the blockchain.
-Executes the specified function with provided parameters.
+   * Call deployed smart contract function
+   *
+   * Executes a function on a deployed smart contract at a specified address.
+   * Sends a request to invoke contract logic and returns the execution result.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param from - Wallet address calling the contract. Auto-strips '0x' prefix.
+   * @param address - Contract address to call. Auto-strips '0x' prefix.
+   * @param request - Contract function request/parameters (auto-converted to hex via stringToHex)
+   * @returns Promise resolving to contract execution result
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const result = await api.callContract(
+   *   'MainNet',
+   *   '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   '0xContractAddress123...',
+   *   'functionName:param1,param2'
+   * );
+   * console.log(result.Response);
+   *
+   * @example
+   * // Request object style
+   * const result = await api.callContract({
+   *   Blockchain: 'MainNet',
+   *   From: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+   *   Address: '0xContractAddress123...',
+   *   Request: 'functionName:param1,param2'
+   * });
+   *
+   * @see {@link testContract} for testing contract code before deployment
    */
   async callContract(blockchain: string, from: string, address: string, request: string): Promise<callContractResponse>;
   async callContract(req: callContractRequest): Promise<callContractResponse>;
@@ -804,9 +1191,28 @@ Executes the specified function with provided parameters.
   }
 
   /**
-   * List all assets on blockchain
-   * Retrieves the list of all assets minted on a specific blockchain.
-Returns an array of asset information.
+   * Get list of all assets on blockchain
+   *
+   * Retrieves a complete list of all assets that have been minted on the specified blockchain.
+   * Returns an array of asset names available for querying or trading.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @returns Promise resolving to array of asset names
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const assets = await api.getAssetList('MainNet');
+   * assets.Response.forEach(asset => console.log(asset.AssetName));
+   *
+   * @example
+   * // Request object style
+   * const assets = await api.getAssetList({
+   *   Blockchain: 'MainNet'
+   * });
+   *
+   * @see {@link getAsset} for retrieving detailed information about a specific asset
+   * @see {@link getAssetSupply} for checking asset supply metrics
+   * @see {@link getAnalytics} for total asset count
    */
   async getAssetList(blockchain: string): Promise<getAssetListResponse>;
   async getAssetList(req: getAssetListRequest): Promise<getAssetListResponse>;
@@ -825,9 +1231,32 @@ Returns an array of asset information.
   }
 
   /**
-   * Get specific asset information
-   * Retrieves an asset descriptor with complete asset information.
-Returns detailed information about the specified asset.
+   * Get detailed asset information
+   *
+   * Retrieves complete information about a specific asset by its symbol/name.
+   * Returns asset metadata including owner, decimals, and total supply.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param assetName - Asset symbol/name to query (e.g., 'CIRX', 'BTC', 'ETH')
+   * @returns Promise resolving to asset details including AssetName, Owner, Decimals, TotalSupply
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const asset = await api.getAsset('MainNet', 'CIRX');
+   * console.log(`Owner: ${asset.Response.Owner}`);
+   * console.log(`Decimals: ${asset.Response.Decimals}`);
+   * console.log(`Total Supply: ${asset.Response.TotalSupply}`);
+   *
+   * @example
+   * // Request object style
+   * const asset = await api.getAsset({
+   *   Blockchain: 'MainNet',
+   *   AssetName: 'CIRX'
+   * });
+   *
+   * @see {@link getAssetList} for listing all available assets
+   * @see {@link getAssetSupply} for detailed supply metrics
+   * @see {@link getWalletBalance} for checking wallet balance of this asset
    */
   async getAsset(blockchain: string, assetName: string): Promise<getAssetResponse>;
   async getAsset(req: getAssetRequest): Promise<getAssetResponse>;
@@ -847,9 +1276,31 @@ Returns detailed information about the specified asset.
   }
 
   /**
-   * Get asset supply information
-   * Retrieves the total, circulating, and residual supply of a specified asset.
-Returns comprehensive supply metrics.
+   * Get asset supply metrics
+   *
+   * Retrieves comprehensive supply information for a specific asset.
+   * Returns total supply, circulating supply, and residual (uncirculated) supply.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param assetName - Asset symbol/name to query (e.g., 'CIRX', 'BTC', 'ETH')
+   * @returns Promise resolving to supply metrics including TotalSupply, CirculatingSupply, ResidualSupply
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const supply = await api.getAssetSupply('MainNet', 'CIRX');
+   * console.log(`Total: ${supply.Response.TotalSupply}`);
+   * console.log(`Circulating: ${supply.Response.CirculatingSupply}`);
+   * console.log(`Residual: ${supply.Response.ResidualSupply}`);
+   *
+   * @example
+   * // Request object style
+   * const supply = await api.getAssetSupply({
+   *   Blockchain: 'MainNet',
+   *   AssetName: 'CIRX'
+   * });
+   *
+   * @see {@link getAsset} for complete asset information including owner
+   * @see {@link getAssetList} for listing all available assets
    */
   async getAssetSupply(blockchain: string, assetName: string): Promise<getAssetSupplyResponse>;
   async getAssetSupply(req: getAssetSupplyRequest): Promise<getAssetSupplyResponse>;
@@ -869,9 +1320,30 @@ Returns comprehensive supply metrics.
   }
 
   /**
-   * Retrieve voucher information
-   * Retrieves an existing voucher by code.
-Code is automatically stripped of 0x prefix if present.
+   * Get voucher details by code
+   *
+   * Retrieves information about a voucher using its unique code.
+   * Returns voucher details including asset type, value, and redemption status.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param code - Voucher code to query. Auto-strips '0x' prefix.
+   * @returns Promise resolving to voucher details including Code, Asset, Value, Redeemed
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const voucher = await api.getVoucher('MainNet', 'VOUCHER123ABC');
+   * console.log(`Asset: ${voucher.Response.Asset}`);
+   * console.log(`Value: ${voucher.Response.Value}`);
+   * console.log(`Redeemed: ${voucher.Response.Redeemed}`);
+   *
+   * @example
+   * // Request object style
+   * const voucher = await api.getVoucher({
+   *   Blockchain: 'MainNet',
+   *   Code: 'VOUCHER123ABC'
+   * });
+   *
+   * @see {@link getAsset} for asset information
    */
   async getVoucher(blockchain: string, code: string): Promise<getVoucherResponse>;
   async getVoucher(req: getVoucherRequest): Promise<getVoucherResponse>;
@@ -897,10 +1369,29 @@ Code is automatically stripped of 0x prefix if present.
   }
 
   /**
-   * Resolve domain to wallet address
-   * Resolves a domain name to a wallet address.
-A single wallet can have multiple domain associations.
-Also known as resolveDomain.
+   * Resolve Circular domain to wallet address
+   *
+   * Resolves a Circular Protocol domain name to its associated wallet address.
+   * A single wallet can be associated with multiple domain names.
+   *
+   * @param blockchain - Blockchain identifier (e.g., 'MainNet', 'TestNet'). Auto-strips '0x' prefix.
+   * @param domain - Domain name to resolve (e.g., 'alice.cir', 'mycompany.cir')
+   * @returns Promise resolving to domain and address mapping
+   *
+   * @example
+   * // Positional parameters (recommended)
+   * const result = await api.getDomain('MainNet', 'alice.cir');
+   * console.log(`Domain: ${result.Response.Domain}`);
+   * console.log(`Address: ${result.Response.Address}`);
+   *
+   * @example
+   * // Request object style
+   * const result = await api.getDomain({
+   *   Blockchain: 'MainNet',
+   *   Domain: 'alice.cir'
+   * });
+   *
+   * @see {@link getWallet} for retrieving wallet information by address
    */
   async getDomain(blockchain: string, domain: string): Promise<getDomainResponse>;
   async getDomain(req: getDomainRequest): Promise<getDomainResponse>;
@@ -920,9 +1411,25 @@ Also known as resolveDomain.
   }
 
   /**
-   * List available blockchains
-   * Retrieves the list of blockchains available in the network.
-Returns information about all active and inactive blockchains.
+   * Get list of available blockchains
+   *
+   * Retrieves a list of all blockchains available in the Circular Protocol network.
+   * Returns information about each blockchain including name, chain ID, and active status.
+   *
+   * @returns Promise resolving to array of blockchain information including Name, ChainID, Active
+   *
+   * @example
+   * // No parameters required
+   * const chains = await api.getBlockchains();
+   * chains.Response.forEach(chain => {
+   *   console.log(`${chain.Name} (${chain.ChainID}): ${chain.Active ? 'Active' : 'Inactive'}`);
+   * });
+   *
+   * @example
+   * // Request object style (empty object)
+   * const chains = await api.getBlockchains({});
+   *
+   * @see {@link getAnalytics} for blockchain-specific statistics
    */
   async getBlockchains(): Promise<getBlockchainsResponse>;
   async getBlockchains(req?: getBlockchainsRequest): Promise<getBlockchainsResponse> {
@@ -936,25 +1443,38 @@ Returns information about all active and inactive blockchains.
 
   /**
    * Register wallet on blockchain (Convenience Method)
-   * Registers a wallet on the specified blockchain by creating and sending
-a C_TYPE_REGISTERWALLET transaction. This convenience method handles all
-transaction construction internally:
-
-- Derives From/To addresses from public key (sha256)
-- Builds Payload: hex(JSON.stringify({Action: "CP_REGISTERWALLET", PublicKey: publicKey}))
-- Calculates transaction ID: sha256(blockchain + from + to + payload + nonce + timestamp)
-- Sets Nonce to "0" and Signature to "" (empty for registration)
-- Calls sendTransaction with constructed parameters
-
-Without registration, the wallet will not be reachable on the blockchain.
-The same wallet can be registered on multiple blockchains.
    *
-   * This is a convenience method that wraps sendTransaction().
-   * It handles transaction construction internally.
+   * Registers a new wallet on the specified blockchain by creating and sending a
+   * C_TYPE_REGISTERWALLET transaction. This is required before a wallet can receive
+   * transactions or be visible on the blockchain. The same wallet can be registered
+   * on multiple blockchains independently.
    *
-   * @param blockchain - Blockchain where the wallet will be registered
-   * @param publicKey - Wallet public key (128 hex characters)
-   * @returns Promise<SendTransactionResponse>
+   * This convenience method handles all transaction construction internally:
+   * - Derives wallet address from public key (sha256 hash)
+   * - Builds registration payload with Action and PublicKey
+   * - Calculates transaction ID from combined parameters
+   * - Sets Nonce to "0" and Signature to "" (empty for registration)
+   * - Submits via sendTransaction
+   *
+   * @param blockchain - Blockchain identifier where wallet will be registered (e.g., 'MainNet', 'TestNet')
+   * @param publicKey - Uncompressed public key (128 hex characters, without '0x' prefix)
+   * @returns Promise resolving to transaction submission response
+   *
+   * @example
+   * // Register wallet on MainNet
+   * const publicKey = api.getPublicKey(privateKey);
+   * const result = await api.registerWallet('MainNet', publicKey);
+   * console.log(`Transaction ID: ${result.Response.TransactionID}`);
+   * console.log(`Status: ${result.Response.Status}`);
+   *
+   * @example
+   * // Register same wallet on multiple blockchains
+   * await api.registerWallet('MainNet', publicKey);
+   * await api.registerWallet('TestNet', publicKey);
+   *
+   * @see {@link sendTransaction} for the underlying transaction submission
+   * @see {@link checkWallet} for verifying wallet registration
+   * @see {@link getPublicKey} for deriving public key from private key
    */
   async registerWallet(blockchain: string, publicKey: string): Promise<SendTransactionResponse> {
     // Derive addresses from public key
@@ -994,10 +1514,23 @@ The same wallet can be registered on multiple blockchains.
   // ============================================================================
 
 /**
- * Sign a message using secp256k1
- * @param message - Message to sign
+ * Sign a message using secp256k1 elliptic curve cryptography
+ *
+ * Creates a digital signature for a message using the secp256k1 curve (same as Bitcoin/Ethereum).
+ * The signature can be verified using the corresponding public key.
+ *
+ * @param message - Message to sign (will be SHA256 hashed before signing)
  * @param privateKey - Private key in hex format (with or without '0x' prefix)
  * @returns DER-encoded signature as hex string
+ *
+ * @example
+ * const message = 'Hello, Circular Protocol!';
+ * const privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
+ * const signature = api.signMessage(message, privateKey);
+ * console.log(`Signature: ${signature}`);
+ *
+ * @see {@link verifySignature} for verifying signatures
+ * @see {@link getPublicKey} for deriving the public key
  */
 signMessage(message: string, privateKey: string): string {
   const ec = new EC('secp256k1');
@@ -1008,11 +1541,26 @@ signMessage(message: string, privateKey: string): string {
 }
 
 /**
- * Verify a signature
- * @param publicKey - Public key in hex format
+ * Verify a digital signature using secp256k1
+ *
+ * Verifies that a signature was created by the private key corresponding to the given public key.
+ * Returns true if the signature is valid, false otherwise.
+ *
+ * @param publicKey - Public key in hex format (with or without '0x' prefix)
  * @param message - Original message that was signed
  * @param signature - DER-encoded signature in hex format
  * @returns true if signature is valid, false otherwise
+ *
+ * @example
+ * const message = 'Hello, Circular Protocol!';
+ * const privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
+ * const publicKey = api.getPublicKey(privateKey);
+ * const signature = api.signMessage(message, privateKey);
+ * const isValid = api.verifySignature(publicKey, message, signature);
+ * console.log(`Signature valid: ${isValid}`); // true
+ *
+ * @see {@link signMessage} for creating signatures
+ * @see {@link getPublicKey} for deriving public keys
  */
 verifySignature(publicKey: string, message: string, signature: string): boolean {
   try {
@@ -1026,9 +1574,22 @@ verifySignature(publicKey: string, message: string, signature: string): boolean 
 }
 
 /**
- * Derive public key from private key
+ * Derive public key from private key using secp256k1
+ *
+ * Generates the corresponding public key from a private key using elliptic curve mathematics.
+ * Returns the public key in uncompressed format (128 hex characters).
+ *
  * @param privateKey - Private key in hex format (with or without '0x' prefix)
- * @returns Public key in uncompressed hex format
+ * @returns Public key in uncompressed hex format (128 characters)
+ *
+ * @example
+ * const privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
+ * const publicKey = api.getPublicKey(privateKey);
+ * console.log(`Public Key: ${publicKey}`);
+ * console.log(`Length: ${publicKey.length}`); // 130 (04 prefix + 128 hex chars)
+ *
+ * @see {@link signMessage} for signing with the private key
+ * @see {@link registerWallet} for registering a wallet with public key
  */
 getPublicKey(privateKey: string): string {
   const ec = new EC('secp256k1');
@@ -1038,8 +1599,25 @@ getPublicKey(privateKey: string): string {
 
 /**
  * Compute SHA256 hash of a string
+ *
+ * Generates a SHA256 cryptographic hash of the input string.
+ * Returns a 64-character hex string (256 bits = 32 bytes = 64 hex chars).
+ *
  * @param str - String to hash
- * @returns SHA256 hash as hex string
+ * @returns SHA256 hash as hex string (64 characters)
+ *
+ * @example
+ * const hash = api.hashString('Hello, Circular Protocol!');
+ * console.log(`Hash: ${hash}`);
+ * console.log(`Length: ${hash.length}`); // 64
+ *
+ * @example
+ * // Derive wallet address from public key
+ * const publicKey = api.getPublicKey(privateKey);
+ * const walletAddress = api.hashString(publicKey);
+ *
+ * @see {@link getPublicKey} for public key derivation
+ * @see {@link signMessage} which uses SHA256 internally
  */
 hashString(str: string): string {
   return sha256(str);
@@ -1050,9 +1628,22 @@ hashString(str: string): string {
   // ============================================================================
 
 /**
- * Normalize hex strings (remove 0x prefix if present)
+ * Normalize hex strings by removing '0x' prefix
+ *
+ * Removes the '0x' or '0X' prefix from hex strings if present.
+ * This is automatically applied to blockchain/address/ID parameters in all API methods.
+ *
  * @param hexString - Hex string with or without 0x prefix
  * @returns Normalized hex string without 0x prefix
+ *
+ * @example
+ * console.log(api.hexFix('0x123abc'));  // '123abc'
+ * console.log(api.hexFix('0X123ABC'));  // '123ABC'
+ * console.log(api.hexFix('123abc'));    // '123abc' (unchanged)
+ *
+ * @example
+ * // Automatically applied in API methods
+ * await api.checkWallet('MainNet', '0x742d35Cc...'); // 0x auto-stripped
  */
 hexFix(hexString: string): string {
   if (hexString.startsWith('0x') || hexString.startsWith('0X')) {
@@ -1063,8 +1654,23 @@ hexFix(hexString: string): string {
 
 /**
  * Convert string to hex encoding
+ *
+ * Encodes a UTF-8 string to its hexadecimal representation.
+ * This is automatically applied to project/request parameters in contract methods.
+ *
  * @param str - String to convert
- * @returns Hex-encoded string
+ * @returns Hex-encoded string (2 hex chars per byte)
+ *
+ * @example
+ * console.log(api.stringToHex('hello'));        // '68656c6c6f'
+ * console.log(api.stringToHex('ABC'));          // '414243'
+ * console.log(api.stringToHex('hello world'));  // '68656c6c6f20776f726c64'
+ *
+ * @example
+ * // Automatically applied in contract methods
+ * await api.testContract('MainNet', from, 'contract code'); // auto-converted to hex
+ *
+ * @see {@link hexToString} for decoding hex back to string
  */
 stringToHex(str: string): string {
   let hex = '';
@@ -1076,9 +1682,27 @@ stringToHex(str: string): string {
 }
 
 /**
- * Convert hex encoding to string
- * @param hex - Hex-encoded string
- * @returns Decoded string
+ * Convert hex encoding back to string
+ *
+ * Decodes a hexadecimal string back to its UTF-8 string representation.
+ * Automatically strips '0x' prefix if present.
+ *
+ * @param hex - Hex-encoded string (with or without '0x' prefix)
+ * @returns Decoded UTF-8 string
+ *
+ * @example
+ * console.log(api.hexToString('68656c6c6f'));     // 'hello'
+ * console.log(api.hexToString('0x414243'));       // 'ABC'
+ * console.log(api.hexToString('68656c6c6f20776f726c64'));  // 'hello world'
+ *
+ * @example
+ * // Round-trip encoding/decoding
+ * const original = 'Hello, Circular!';
+ * const encoded = api.stringToHex(original);
+ * const decoded = api.hexToString(encoded);
+ * console.log(decoded === original); // true
+ *
+ * @see {@link stringToHex} for encoding strings to hex
  */
 hexToString(hex: string): string {
   const normalized = this.hexFix(hex);
@@ -1101,8 +1725,22 @@ private padNumber(num: number): string {
 
 /**
  * Get current timestamp in Circular Protocol format
- * Format: YYYY:MM:DD-hh:mm:ss (UTC)
- * @returns Formatted timestamp string
+ *
+ * Generates a timestamp string in the format required by Circular Protocol: YYYY:MM:DD-hh:mm:ss (UTC).
+ * This is automatically applied to contract methods (testContract, callContract).
+ *
+ * @returns Formatted timestamp string in YYYY:MM:DD-hh:mm:ss format (UTC timezone)
+ *
+ * @example
+ * const timestamp = api.getFormattedTimestamp();
+ * console.log(timestamp);  // '2025:11:15-14:30:45'
+ *
+ * @example
+ * // Automatically applied in contract methods
+ * await api.testContract('MainNet', from, project); // timestamp auto-generated
+ *
+ * @see {@link testContract} which auto-generates timestamps
+ * @see {@link callContract} which auto-generates timestamps
  */
 getFormattedTimestamp(): string {
   const now = new Date();
