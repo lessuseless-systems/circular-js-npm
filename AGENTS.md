@@ -383,15 +383,33 @@ E2E Tests (Slow)
 
 ### Test Organization
 
+**Current Structure:**
 ```
 __tests__/
-├── index.test.ts           # Unit tests
-├── helpers.test.ts         # Helper function tests
-├── preprocessing.test.ts   # Preprocessing logic tests
-├── overloads.test.ts       # Method overload resolution tests
-├── integration.test.ts     # Integration tests
-└── e2e.test.ts            # End-to-end tests
+└── index.test.ts           # Unit tests (mock fetch API)
+
+tests/
+├── circularProtocolAPI.test.js  # Legacy JS tests (from circular-js-npm)
+├── index.test.ts                # Unit tests (duplicate of __tests__/)
+├── integration.test.ts          # Integration tests (mock server)
+└── e2e.test.ts                  # End-to-end tests (live API)
 ```
+
+**Recommended Structure (TODO):**
+```
+__tests__/
+├── unit/
+│   ├── api-methods.test.ts      # Test all 24 API methods
+│   ├── helpers.test.ts           # Test helper functions
+│   ├── preprocessing.test.ts     # Test auto-preprocessing
+│   └── overloads.test.ts         # Test method overload resolution
+├── integration/
+│   └── integration.test.ts       # Integration tests
+└── e2e/
+    └── e2e.test.ts               # End-to-end tests
+```
+
+> **Note:** Test organization cleanup is pending. Currently tests are split between `__tests__/` and `tests/` directories.
 
 ### Test Patterns
 
