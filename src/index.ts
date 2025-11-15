@@ -310,7 +310,6 @@ export class CircularProtocolAPI {
 private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
 private nagKey: string = '';
 private lastError: string = '';
-private readonly version: string = '1.0.8';
 
   /**
    * Create a new Circular Protocol API client
@@ -601,9 +600,9 @@ The same wallet can be registered on multiple blockchains.
    *
    * @param blockchain - Blockchain where the wallet will be registered
    * @param publicKey - Wallet public key (128 hex characters)
-   * @returns Promise<AddTransactionResponse>
+   * @returns Promise<SendTransactionResponse>
    */
-  async registerWallet(blockchain: string, publicKey: string): Promise<AddTransactionResponse> {
+  async registerWallet(blockchain: string, publicKey: string): Promise<SendTransactionResponse> {
     // Derive addresses from public key
     const from = this.hashString(publicKey);
     const to = from;
@@ -622,8 +621,8 @@ The same wallet can be registered on multiple blockchains.
     const id = this.hashString(blockchain + from + to + payload + nonce + timestamp);
     const signature = '';
 
-    // Call addTransaction
-    return this.addTransaction({
+    // Call sendTransaction
+    return this.sendTransaction({
       ID: id,
       From: from,
       To: to,
@@ -633,7 +632,7 @@ The same wallet can be registered on multiple blockchains.
       Nonce: nonce,
       Signature: signature,
       Blockchain: blockchain,
-      Version: this.version
+      Version: this.version || '1.0.8'
     });
   }
 
@@ -870,7 +869,7 @@ async getTransactionOutcome(
       });
 
       // Check if transaction is confirmed (has BlockNumber)
-      if (tx.Response && tx.Response.Response && tx.Response.Response.BlockNumber && tx.Response.Response.BlockNumber > 0) {
+      if (tx.Response && tx.Response.BlockNumber && tx.Response.BlockNumber > 0) {
         // Transaction confirmed
         return tx;
       }
@@ -889,26 +888,6 @@ async getTransactionOutcome(
       await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
   }
-}
-
-  // ============================================================================
-  // Utility Methods
-  // ============================================================================
-
-/**
- * Get the SDK version
- * @returns SDK version string
- */
-getVersion(): string {
-  return '1.0.8';
-}
-
-/**
- * Set the primary node address for querying blockchain
- * @param address - Node address or URL
- */
-setNode(address: string): void {
-  this.nagURL = address;
 }
 }
 
