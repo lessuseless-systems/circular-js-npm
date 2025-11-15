@@ -1,7 +1,7 @@
 {
   "author": "Danny De Novi",
   "bugs": {
-    "url": "https://github.com/circular-protocol/circular-protocol-ts/issues"
+    "url": "https://github.com/circular-protocol/circular-js-npm/issues"
   },
   "dependencies": {
     "elliptic": "^6.5.7",
@@ -40,7 +40,7 @@
     "README.md",
     "LICENSE"
   ],
-  "homepage": "https://github.com/circular-protocol/circular-protocol-ts#readme",
+  "homepage": "https://github.com/circular-protocol/circular-js-npm#readme",
   "keywords": [
     "Blockchain",
     "Circular",
@@ -58,7 +58,7 @@
   "name": "circular-protocol-api",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/circular-protocol/circular-protocol-ts.git"
+    "url": "git+https://github.com/circular-protocol/circular-js-npm.git"
   },
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm",

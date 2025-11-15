@@ -80,4 +80,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero runtime dependencies
 - Type declaration files included
 
-[1.0.8]: https://github.com/lessuseless-systems/circular-ts/releases/tag/v1.0.8
+[1.0.8]: https://github.com/circular-protocol/circular-js-npm/releases/tag/v1.0.8

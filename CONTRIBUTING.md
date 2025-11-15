@@ -37,8 +37,8 @@ This TypeScript SDK is **manually maintained** to ensure compatibility with the 
 
 ```bash
 # Clone repository
-git clone https://github.com/lessuseless-systems/circular-ts.git
-cd circular-ts
+git clone https://github.com/circular-protocol/circular-js-npm.git
+cd circular-js-npm
 
 # Install dependencies
 npm install

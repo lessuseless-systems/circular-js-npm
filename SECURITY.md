@@ -190,7 +190,7 @@ While this improves developer experience, always:
 ## Security Advisories
 
 Security advisories will be published at:
-- [GitHub Security Advisories](https://github.com/circular-protocol/circular-protocol-ts/security/advisories)
+- [GitHub Security Advisories](https://github.com/circular-protocol/circular-js-npm/security/advisories)
 - Release notes with `[SECURITY]` tag
 - CHANGELOG.md with security section
 
