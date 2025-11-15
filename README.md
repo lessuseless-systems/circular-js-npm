@@ -209,9 +209,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ℹ️ About
 
-**Version**: 1.0.8
+**Version**: 1.0.9
 **License**: MIT
-**Generated**: Auto-generated from [Circular Canonical](https://github.com/circular-protocol/circular-canonical) specification
+**Maintained**: Manually maintained to ensure compatibility with circular-js-npm while adding TypeScript enhancements
 
 ---
 
