@@ -238,4 +238,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-*Generated from circular-canonical v1.0.8*
+**Last Updated**: 2025-11-15

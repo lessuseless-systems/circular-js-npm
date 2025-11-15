@@ -76,7 +76,7 @@ This document describes the internal architecture, design patterns, and implemen
 ```typescript
 export class CircularProtocolAPI {
   // Configuration
-  private readonly version: string = '1.0.8'
+  private readonly version: string = '1.0.9'
   private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep='
   private nagKey: string = ''
   private readonly headers: Record<string, string>
@@ -145,7 +145,7 @@ await api.checkWallet('MainNet', '0x123abc...')
 {
   Blockchain: 'MainNet',    // After hexFix: 'MainNet'
   Address: '123abc...',     // After hexFix: '123abc' (0x removed)
-  Version: '1.0.8'          // Auto-injected
+  Version: '1.0.9'          // Auto-injected
 }
 
 // Sent to:
@@ -217,7 +217,7 @@ async methodName(
 | `hexFix()` | blockchain, address, ID, nodeID | Remove '0x' prefix if present |
 | `stringToHex()` | project, request (contracts) | Convert UTF-8 strings to hex encoding |
 | `getFormattedTimestamp()` | Timestamp (contracts) | Generate UTC timestamp in YYYY:MM:DD-hh:mm:ss format |
-| Version injection | All requests | Add `Version: '1.0.8'` field |
+| Version injection | All requests | Add `Version: '1.0.9'` field |
 | Code stripping | Voucher codes | Remove '0x' prefix from voucher codes |
 
 ### Preprocessing Rules
@@ -238,7 +238,7 @@ testContract('blockchain', 'from', 'project code string')
   From: hexFix('from'),
   Project: stringToHex('project code string'),
   Timestamp: getFormattedTimestamp(),
-  Version: '1.0.8'
+  Version: '1.0.9'
 }
 ```
 
