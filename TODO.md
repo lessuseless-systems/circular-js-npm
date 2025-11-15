@@ -22,70 +22,60 @@ tests/
 └── e2e.test.ts                  # E2E tests (EXISTS!)
 ```
 
-### Recommended Actions
+### Completed Actions ✅
 
-#### 1. Consolidate Test Directories
-**Option A: Use `__tests__/` (Jest convention)**
-```bash
-# Move tests from tests/ to __tests__/
-mv tests/integration.test.ts __tests__/
-mv tests/e2e.test.ts __tests__/
-# Remove duplicate
-rm tests/index.test.ts
-# Keep or remove legacy JS test
-rm tests/circularProtocolAPI.test.js  # or keep for reference
-```
+#### 1. ✅ Consolidated Test Directories
+- Moved `tests/integration.test.ts` → `__tests__/integration.test.ts`
+- Moved `tests/e2e.test.ts` → `__tests__/e2e.test.ts`
+- Removed duplicate `tests/index.test.ts`
+- Kept `tests/circularProtocolAPI.test.js` for legacy reference
+- Using `__tests__/` directory (Jest convention)
 
-**Option B: Use `tests/` (explicit)**
-```bash
-# Move from __tests__/ to tests/
-mv __tests__/index.test.ts tests/
-rmdir __tests__/
-```
+#### 2. ✅ Created Missing Test Files
 
-#### 2. Create Missing Test Files
+**`__tests__/helpers.test.ts`** (250 lines)
+- ✅ Test `hexFix()` - strip 0x prefix
+- ✅ Test `stringToHex()` - UTF-8 to hex encoding
+- ✅ Test `hexToString()` - hex to UTF-8 decoding
+- ✅ Test `signMessage()` - ECDSA signing
+- ✅ Test `verifySignature()` - signature verification
+- ✅ Test `getPublicKey()` - derive public from private key
+- ✅ Test `hashString()` - SHA256 hashing
+- ✅ Test `getFormattedTimestamp()` - timestamp format
+- ✅ Test configuration methods (NAG URL/Key)
+- ✅ Test error handling
 
-After consolidation, create:
+**`__tests__/preprocessing.test.ts`** (312 lines)
+- ✅ Test auto-preprocessing in positional param overloads
+- ✅ Test auto-preprocessing in request object overloads
+- ✅ Test hexFix applied to blockchain/address/ID/nodeID
+- ✅ Test stringToHex applied to project/request
+- ✅ Test version auto-injection in all methods
+- ✅ Test timestamp auto-generation
+- ✅ Test voucher code '0x' stripping
+- ✅ Test combined preprocessing (multiple steps)
+- ✅ Test edge cases (empty strings, just "0x")
 
-**`__tests__/helpers.test.ts`** (or `tests/helpers.test.ts`)
-- Test `hexFix()` - strip 0x prefix
-- Test `stringToHex()` - UTF-8 to hex encoding
-- Test `hexToString()` - hex to UTF-8 decoding
-- Test `signMessage()` - ECDSA signing
-- Test `verifySignature()` - signature verification
-- Test `getPublicKey()` - derive public from private key
-- Test `hashString()` - SHA256 hashing
-- Test `getFormattedTimestamp()` - timestamp format
+**`__tests__/overloads.test.ts`** (380 lines)
+- ✅ Test positional param resolution for all 24 methods
+- ✅ Test request object resolution for all 24 methods
+- ✅ Test TypeScript type inference works correctly
+- ✅ Test both calling styles produce identical requests
+- ✅ Test preprocessing in both calling styles
+- ✅ Test edge cases (optional params, version defaulting)
 
-**`__tests__/preprocessing.test.ts`**
-- Test auto-preprocessing in positional param overloads
-- Test auto-preprocessing in request object overloads
-- Test hexFix applied to blockchain/address/ID
-- Test stringToHex applied to project/request
-- Test version auto-injection
-- Test voucher code '0x' stripping
+#### 3. ✅ Jest Configuration Already Correct
 
-**`__tests__/overloads.test.ts`**
-- Test positional param resolution for all 24 methods
-- Test request object resolution for all 24 methods
-- Test TypeScript type inference works correctly
-- Test both calling styles return same results
-
-#### 3. Update Jest Configuration
-
-Ensure `jest.config.cjs` points to correct test directory:
+`jest.config.cjs` already points to `__tests__/`:
 
 ```javascript
-module.exports = {
-  testMatch: [
-    '**/__tests__/**/*.test.ts',  // or
-    '**/tests/**/*.test.ts'        // depending on choice
-  ],
-  // ...
-};
+testMatch: [
+  "**/__tests__/**/*.ts",
+  "**/?(*.)+(spec|test).ts"
+]
 ```
 
-#### 4. Update package.json Scripts
+#### 4. ✅ Updated package.json Scripts
 
 ```json
 {
@@ -98,6 +88,30 @@ module.exports = {
     "test:coverage": "jest --coverage"
   }
 }
+```
+
+### Next Steps (User Action Required)
+
+Since node/npm are not available in the Claude Code environment, please run these commands locally:
+
+```bash
+# Run all tests
+npm test
+
+# Run only unit tests
+npm run test:unit
+
+# Run with coverage
+npm run test:coverage
+
+# Run type check
+npm run type-check
+
+# Run linter
+npm run lint
+
+# Build the project
+npm run build
 ```
 
 ---
