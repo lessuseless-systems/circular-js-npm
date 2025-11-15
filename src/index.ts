@@ -1,7 +1,7 @@
 /**
  * Circular Protocol TypeScript SDK
  * Generated from Nickel API specification
- * Version: 1.0.8
+ * Version: 1.0.9
  */
 
 import { ec as EC } from 'elliptic';
@@ -306,15 +306,16 @@ export interface getBlockchainsResponse {
  * const result = await api.checkWallet({
  *   Blockchain: 'MainNet',
  *   Address: '0x...',
- *   Version: '1.0.8'
+ *   Version: '1.0.9'
  * });
  * ```
  */
 export class CircularProtocolAPI {
   private readonly headers: Record<string, string>;
-private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
-private nagKey: string = '';
-private lastError: string = '';
+  private readonly version: string = '1.0.9';
+  private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
+  private nagKey: string = '';
+  private lastError: string = '';
 
   /**
    * Create a new Circular Protocol API client
@@ -610,7 +611,7 @@ private async _makeRequest(endpoint: string, data: any = {}): Promise<{ Result: 
    *   Nonce: '0',
    *   Signature: signatureHex,
    *   Blockchain: 'MainNet',
-   *   Version: '1.0.8'
+   *   Version: '1.0.9'
    * });
    *
    * @see {@link sendTransaction} for convenient positional parameter version
