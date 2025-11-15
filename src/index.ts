@@ -315,7 +315,6 @@ export class CircularProtocolAPI {
 private nagURL: string = 'https://nag.circularlabs.io/NAG.php?cep=';
 private nagKey: string = '';
 private lastError: string = '';
-private readonly version: string = '1.0.8';
 
   /**
    * Create a new Circular Protocol API client
