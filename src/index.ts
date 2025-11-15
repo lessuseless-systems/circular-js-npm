@@ -200,6 +200,11 @@ export interface AddTransactionResponse {
   Response: { Response: { Status: string; TransactionID: string }; Result: number };
 }
 
+export interface SendTransactionResponse {
+  Result: number;
+  Response: { Response: { Status: string; TransactionID: string }; Result: number };
+}
+
 export interface getPendingTransactionResponse {
   Result: number;
   Response: { Response: { From: string; ID: string; Status: string; To: string }; Result: number };
@@ -373,7 +378,21 @@ private async _makeRequest(endpoint: string, data: any = {}): Promise<{ Result: 
    * Checks whether a wallet address exists on the specified blockchain.
 Returns existence status and confirms the address format.
    */
-  async checkWallet(req: checkWalletRequest): Promise<checkWalletResponse> {
+  async checkWallet(blockchain: string, address: string): Promise<checkWalletResponse>;
+  async checkWallet(req: checkWalletRequest): Promise<checkWalletResponse>;
+  async checkWallet(blockchainOrReq: string | checkWalletRequest, address?: string): Promise<checkWalletResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('CheckWallet', req);
   }
 
@@ -382,7 +401,21 @@ Returns existence status and confirms the address format.
    * Retrieves complete wallet information including balance and nonce.
 Returns all wallet properties including current state on the blockchain.
    */
-  async getWallet(req: getWalletRequest): Promise<getWalletResponse> {
+  async getWallet(blockchain: string, address: string): Promise<getWalletResponse>;
+  async getWallet(req: getWalletRequest): Promise<getWalletResponse>;
+  async getWallet(blockchainOrReq: string | getWalletRequest, address?: string): Promise<getWalletResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetWallet', req);
   }
 
@@ -391,7 +424,21 @@ Returns all wallet properties including current state on the blockchain.
    * Retrieves the latest transactions for a wallet address.
 Returns an array of transaction objects with details.
    */
-  async getLatestTransactions(req: getLatestTransactionsRequest): Promise<getLatestTransactionsResponse> {
+  async getLatestTransactions(blockchain: string, address: string): Promise<getLatestTransactionsResponse>;
+  async getLatestTransactions(req: getLatestTransactionsRequest): Promise<getLatestTransactionsResponse>;
+  async getLatestTransactions(blockchainOrReq: string | getLatestTransactionsRequest, address?: string): Promise<getLatestTransactionsResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetLatestTransactions', req);
   }
 
@@ -400,7 +447,22 @@ Returns an array of transaction objects with details.
    * Retrieves the balance of a specified asset in a wallet.
 Returns the balance amount for the requested asset.
    */
-  async getWalletBalance(req: getWalletBalanceRequest): Promise<getWalletBalanceResponse> {
+  async getWalletBalance(blockchain: string, address: string, asset: string): Promise<getWalletBalanceResponse>;
+  async getWalletBalance(req: getWalletBalanceRequest): Promise<getWalletBalanceResponse>;
+  async getWalletBalance(blockchainOrReq: string | getWalletBalanceRequest, address?: string, asset?: string): Promise<getWalletBalanceResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Asset: asset!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetWalletBalance', req);
   }
 
@@ -409,7 +471,21 @@ Returns the balance amount for the requested asset.
    * Retrieves the nonce (transaction counter) of a wallet.
 The nonce is used for transaction ordering and must increment with each transaction.
    */
-  async getWalletNonce(req: getWalletNonceRequest): Promise<getWalletNonceResponse> {
+  async getWalletNonce(blockchain: string, address: string): Promise<getWalletNonceResponse>;
+  async getWalletNonce(req: getWalletNonceRequest): Promise<getWalletNonceResponse>;
+  async getWalletNonce(blockchainOrReq: string | getWalletNonceRequest, address?: string): Promise<getWalletNonceResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetWalletNonce', req);
   }
 
@@ -423,11 +499,67 @@ including ID, addresses, payload, nonce, and signature.
   }
 
   /**
+   * Send transaction to blockchain (Alias for addTransaction with positional params)
+   *
+   * Submits a transaction to the blockchain using positional parameters.
+   * This method matches the JavaScript implementation signature.
+   *
+   * @param id - Transaction ID (hash)
+   * @param from - Sender wallet address
+   * @param to - Receiver wallet address
+   * @param timestamp - Transaction timestamp (YYYY:MM:DD-hh:mm:ss format)
+   * @param type - Transaction type (e.g., 'C_TYPE_REGISTERWALLET')
+   * @param payload - Transaction payload (hex encoded)
+   * @param nonce - Wallet nonce (string)
+   * @param signature - Transaction signature (DER-encoded hex)
+   * @param blockchain - Blockchain identifier
+   * @returns Promise resolving to transaction submission response
+   */
+  async sendTransaction(
+    id: string,
+    from: string,
+    to: string,
+    timestamp: string,
+    type: string,
+    payload: string,
+    nonce: string,
+    signature: string,
+    blockchain: string
+  ): Promise<SendTransactionResponse> {
+    return this.addTransaction({
+      ID: id,
+      From: from,
+      To: to,
+      Timestamp: timestamp,
+      Type: type,
+      Payload: payload,
+      Nonce: nonce,
+      Signature: signature,
+      Blockchain: blockchain,
+      Version: this.version
+    });
+  }
+
+  /**
    * Get pending transaction by ID
    * Searches for a transaction by ID among pending transactions.
 Returns the transaction if it exists and is still pending.
    */
-  async getPendingTransaction(req: getPendingTransactionRequest): Promise<getPendingTransactionResponse> {
+  async getPendingTransaction(blockchain: string, txID: string): Promise<getPendingTransactionResponse>;
+  async getPendingTransaction(req: getPendingTransactionRequest): Promise<getPendingTransactionResponse>;
+  async getPendingTransaction(blockchainOrReq: string | getPendingTransactionRequest, txID?: string): Promise<getPendingTransactionResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          ID: this.hexFix(txID!),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          ID: this.hexFix(blockchainOrReq.ID),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetPendingTransaction', req);
   }
 
@@ -436,7 +568,23 @@ Returns the transaction if it exists and is still pending.
    * Finds a transaction by ID within a specified block range.
 Searches through blocks to locate the transaction.
    */
-  async getTransactionbyID(req: getTransactionbyIDRequest): Promise<getTransactionbyIDResponse> {
+  async getTransactionbyID(blockchain: string, txID: string, start: string, end: string): Promise<getTransactionbyIDResponse>;
+  async getTransactionbyID(req: getTransactionbyIDRequest): Promise<getTransactionbyIDResponse>;
+  async getTransactionbyID(blockchainOrReq: string | getTransactionbyIDRequest, txID?: string, start?: string, end?: string): Promise<getTransactionbyIDResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          ID: this.hexFix(txID!),
+          Start: start!,
+          End: end!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          ID: this.hexFix(blockchainOrReq.ID),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetTransactionbyID', req);
   }
 
@@ -445,7 +593,23 @@ Searches through blocks to locate the transaction.
    * Finds transactions by node ID within a specified block range.
 Returns all transactions associated with the node.
    */
-  async getTransactionbyNode(req: getTransactionbyNodeRequest): Promise<getTransactionbyNodeResponse> {
+  async getTransactionbyNode(blockchain: string, nodeID: string, start: string, end: string): Promise<getTransactionbyNodeResponse>;
+  async getTransactionbyNode(req: getTransactionbyNodeRequest): Promise<getTransactionbyNodeResponse>;
+  async getTransactionbyNode(blockchainOrReq: string | getTransactionbyNodeRequest, nodeID?: string, start?: string, end?: string): Promise<getTransactionbyNodeResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          NodeID: this.hexFix(nodeID!),
+          Start: start!,
+          End: end!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          NodeID: this.hexFix(blockchainOrReq.NodeID),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetTransactionbyNode', req);
   }
 
@@ -454,7 +618,23 @@ Returns all transactions associated with the node.
    * Finds transactions by wallet address within a specified block range.
 Returns transactions where the address is sender or recipient.
    */
-  async getTransactionbyAddress(req: getTransactionbyAddressRequest): Promise<getTransactionbyAddressResponse> {
+  async getTransactionbyAddress(blockchain: string, address: string, start: string, end: string): Promise<getTransactionbyAddressResponse>;
+  async getTransactionbyAddress(req: getTransactionbyAddressRequest): Promise<getTransactionbyAddressResponse>;
+  async getTransactionbyAddress(blockchainOrReq: string | getTransactionbyAddressRequest, address?: string, start?: string, end?: string): Promise<getTransactionbyAddressResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          Start: start!,
+          End: end!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetTransactionbyAddress', req);
   }
 
@@ -463,7 +643,23 @@ Returns transactions where the address is sender or recipient.
    * Finds transactions by wallet address within a specified date range.
 Returns all transactions for the address between the dates.
    */
-  async getTransactionbyDate(req: getTransactionbyDateRequest): Promise<getTransactionbyDateResponse> {
+  async getTransactionbyDate(blockchain: string, address: string, startDate: string, endDate: string): Promise<getTransactionbyDateResponse>;
+  async getTransactionbyDate(req: getTransactionbyDateRequest): Promise<getTransactionbyDateResponse>;
+  async getTransactionbyDate(blockchainOrReq: string | getTransactionbyDateRequest, address?: string, startDate?: string, endDate?: string): Promise<getTransactionbyDateResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Address: this.hexFix(address!),
+          StartDate: startDate!,
+          EndDate: endDate!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetTransactionbyDate', req);
   }
 
@@ -472,7 +668,20 @@ Returns all transactions for the address between the dates.
    * Retrieves a desired block by block number.
 Returns complete block information including transactions and hash.
    */
-  async getBlock(req: getBlockRequest): Promise<getBlockResponse> {
+  async getBlock(blockchain: string, blockNumber: string): Promise<getBlockResponse>;
+  async getBlock(req: getBlockRequest): Promise<getBlockResponse>;
+  async getBlock(blockchainOrReq: string | getBlockRequest, blockNumber?: string): Promise<getBlockResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          BlockNumber: blockNumber!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetBlock', req);
   }
 
@@ -481,7 +690,21 @@ Returns complete block information including transactions and hash.
    * Retrieves all blocks in a specified range.
 If End = 0, then Start is the number of blocks from the last one minted going backward.
    */
-  async getBlockRange(req: getBlockRangeRequest): Promise<getBlockRangeResponse> {
+  async getBlockRange(blockchain: string, start: string, end: string): Promise<getBlockRangeResponse>;
+  async getBlockRange(req: getBlockRangeRequest): Promise<getBlockRangeResponse>;
+  async getBlockRange(blockchainOrReq: string | getBlockRangeRequest, start?: string, end?: string): Promise<getBlockRangeResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Start: start!,
+          End: end!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetBlockRange', req);
   }
 
@@ -490,8 +713,20 @@ If End = 0, then Start is the number of blocks from the last one minted going ba
    * Retrieves the blockchain block height (total number of blocks).
 Also known as getBlockHeight in some documentation.
    */
-  async getBlockCount(req: getBlockCountRequest): Promise<getBlockCountResponse> {
-    return this._makeRequest('GetBlockCount', req);
+  async getBlockCount(blockchain: string): Promise<getBlockCountResponse>;
+  async getBlockCount(req: getBlockCountRequest): Promise<getBlockCountResponse>;
+  async getBlockCount(blockchainOrReq: string | getBlockCountRequest): Promise<getBlockCountResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
+    return this._makeRequest('GetBlockHeight', req);
   }
 
   /**
@@ -499,7 +734,19 @@ Also known as getBlockHeight in some documentation.
    * Retrieves blockchain analytics and statistics.
 Returns comprehensive information about the blockchain state.
    */
-  async getAnalytics(req: getAnalyticsRequest): Promise<getAnalyticsResponse> {
+  async getAnalytics(blockchain: string): Promise<getAnalyticsResponse>;
+  async getAnalytics(req: getAnalyticsRequest): Promise<getAnalyticsResponse>;
+  async getAnalytics(blockchainOrReq: string | getAnalyticsRequest): Promise<getAnalyticsResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetAnalytics', req);
   }
 
@@ -508,7 +755,24 @@ Returns comprehensive information about the blockchain state.
    * Tests smart contract execution locally without sending a transaction.
 Useful for testing contract logic before deploying or executing.
    */
-  async testContract(req: testContractRequest): Promise<testContractResponse> {
+  async testContract(blockchain: string, from: string, project: string): Promise<testContractResponse>;
+  async testContract(req: testContractRequest): Promise<testContractResponse>;
+  async testContract(blockchainOrReq: string | testContractRequest, from?: string, project?: string): Promise<testContractResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          From: this.hexFix(from!),
+          Project: this.stringToHex(project!),
+          Timestamp: this.getFormattedTimestamp(),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          From: this.hexFix(blockchainOrReq.From),
+          Project: this.stringToHex(blockchainOrReq.Project),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('TestContract', req);
   }
 
@@ -517,7 +781,26 @@ Useful for testing contract logic before deploying or executing.
    * Calls a smart contract function on the blockchain.
 Executes the specified function with provided parameters.
    */
-  async callContract(req: callContractRequest): Promise<callContractResponse> {
+  async callContract(blockchain: string, from: string, address: string, request: string): Promise<callContractResponse>;
+  async callContract(req: callContractRequest): Promise<callContractResponse>;
+  async callContract(blockchainOrReq: string | callContractRequest, from?: string, address?: string, request?: string): Promise<callContractResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          From: this.hexFix(from!),
+          Address: this.hexFix(address!),
+          Request: this.stringToHex(request!),
+          Timestamp: this.getFormattedTimestamp(),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          From: this.hexFix(blockchainOrReq.From),
+          Address: this.hexFix(blockchainOrReq.Address),
+          Request: this.stringToHex(blockchainOrReq.Request),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('CallContract', req);
   }
 
@@ -526,7 +809,19 @@ Executes the specified function with provided parameters.
    * Retrieves the list of all assets minted on a specific blockchain.
 Returns an array of asset information.
    */
-  async getAssetList(req: getAssetListRequest): Promise<getAssetListResponse> {
+  async getAssetList(blockchain: string): Promise<getAssetListResponse>;
+  async getAssetList(req: getAssetListRequest): Promise<getAssetListResponse>;
+  async getAssetList(blockchainOrReq: string | getAssetListRequest): Promise<getAssetListResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetAssetList', req);
   }
 
@@ -535,7 +830,20 @@ Returns an array of asset information.
    * Retrieves an asset descriptor with complete asset information.
 Returns detailed information about the specified asset.
    */
-  async getAsset(req: getAssetRequest): Promise<getAssetResponse> {
+  async getAsset(blockchain: string, assetName: string): Promise<getAssetResponse>;
+  async getAsset(req: getAssetRequest): Promise<getAssetResponse>;
+  async getAsset(blockchainOrReq: string | getAssetRequest, assetName?: string): Promise<getAssetResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          AssetName: assetName!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetAsset', req);
   }
 
@@ -544,7 +852,20 @@ Returns detailed information about the specified asset.
    * Retrieves the total, circulating, and residual supply of a specified asset.
 Returns comprehensive supply metrics.
    */
-  async getAssetSupply(req: getAssetSupplyRequest): Promise<getAssetSupplyResponse> {
+  async getAssetSupply(blockchain: string, assetName: string): Promise<getAssetSupplyResponse>;
+  async getAssetSupply(req: getAssetSupplyRequest): Promise<getAssetSupplyResponse>;
+  async getAssetSupply(blockchainOrReq: string | getAssetSupplyRequest, assetName?: string): Promise<getAssetSupplyResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          AssetName: assetName!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetAssetSupply', req);
   }
 
@@ -553,7 +874,26 @@ Returns comprehensive supply metrics.
    * Retrieves an existing voucher by code.
 Code is automatically stripped of 0x prefix if present.
    */
-  async getVoucher(req: getVoucherRequest): Promise<getVoucherResponse> {
+  async getVoucher(blockchain: string, code: string): Promise<getVoucherResponse>;
+  async getVoucher(req: getVoucherRequest): Promise<getVoucherResponse>;
+  async getVoucher(blockchainOrReq: string | getVoucherRequest, code?: string): Promise<getVoucherResponse> {
+    // Strip 0x prefix from code if present
+    const processedCode = typeof blockchainOrReq === 'string'
+      ? (code!.startsWith('0x') ? code!.slice(2) : code!)
+      : (blockchainOrReq.Code.startsWith('0x') ? blockchainOrReq.Code.slice(2) : blockchainOrReq.Code);
+
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Code: processedCode,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Code: processedCode,
+          Version: blockchainOrReq.Version || this.version
+        };
     return this._makeRequest('GetVoucher', req);
   }
 
@@ -563,8 +903,21 @@ Code is automatically stripped of 0x prefix if present.
 A single wallet can have multiple domain associations.
 Also known as resolveDomain.
    */
-  async getDomain(req: getDomainRequest): Promise<getDomainResponse> {
-    return this._makeRequest('GetDomain', req);
+  async getDomain(blockchain: string, domain: string): Promise<getDomainResponse>;
+  async getDomain(req: getDomainRequest): Promise<getDomainResponse>;
+  async getDomain(blockchainOrReq: string | getDomainRequest, domain?: string): Promise<getDomainResponse> {
+    const req = typeof blockchainOrReq === 'string'
+      ? {
+          Blockchain: this.hexFix(blockchainOrReq),
+          Domain: domain!,
+          Version: this.version
+        }
+      : {
+          ...blockchainOrReq,
+          Blockchain: this.hexFix(blockchainOrReq.Blockchain),
+          Version: blockchainOrReq.Version || this.version
+        };
+    return this._makeRequest('ResolveDomain', req);
   }
 
   /**
@@ -572,8 +925,9 @@ Also known as resolveDomain.
    * Retrieves the list of blockchains available in the network.
 Returns information about all active and inactive blockchains.
    */
-  async getBlockchains(req: getBlockchainsRequest): Promise<getBlockchainsResponse> {
-    return this._makeRequest('GetBlockchains', req);
+  async getBlockchains(): Promise<getBlockchainsResponse>;
+  async getBlockchains(req?: getBlockchainsRequest): Promise<getBlockchainsResponse> {
+    return this._makeRequest('GetBlockchains', req || {});
   }
 
   // ============================================================================
@@ -601,9 +955,9 @@ The same wallet can be registered on multiple blockchains.
    *
    * @param blockchain - Blockchain where the wallet will be registered
    * @param publicKey - Wallet public key (128 hex characters)
-   * @returns Promise<AddTransactionResponse>
+   * @returns Promise<SendTransactionResponse>
    */
-  async registerWallet(blockchain: string, publicKey: string): Promise<AddTransactionResponse> {
+  async registerWallet(blockchain: string, publicKey: string): Promise<SendTransactionResponse> {
     // Derive addresses from public key
     const from = this.hashString(publicKey);
     const to = from;
@@ -622,19 +976,18 @@ The same wallet can be registered on multiple blockchains.
     const id = this.hashString(blockchain + from + to + payload + nonce + timestamp);
     const signature = '';
 
-    // Call addTransaction
-    return this.addTransaction({
-      ID: id,
-      From: from,
-      To: to,
-      Timestamp: timestamp,
-      Type: type,
-      Payload: payload,
-      Nonce: nonce,
-      Signature: signature,
-      Blockchain: blockchain,
-      Version: this.version
-    });
+    // Call sendTransaction
+    return this.sendTransaction(
+      id,
+      from,
+      to,
+      timestamp,
+      type,
+      payload,
+      nonce,
+      signature,
+      blockchain
+    );
   }
 
   // ============================================================================
@@ -870,7 +1223,7 @@ async getTransactionOutcome(
       });
 
       // Check if transaction is confirmed (has BlockNumber)
-      if (tx.Response && tx.Response.Response && tx.Response.Response.BlockNumber && tx.Response.Response.BlockNumber > 0) {
+      if (tx.Response && tx.Response.BlockNumber && tx.Response.BlockNumber > 0) {
         // Transaction confirmed
         return tx;
       }
@@ -889,26 +1242,6 @@ async getTransactionOutcome(
       await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
   }
-}
-
-  // ============================================================================
-  // Utility Methods
-  // ============================================================================
-
-/**
- * Get the SDK version
- * @returns SDK version string
- */
-getVersion(): string {
-  return '1.0.8';
-}
-
-/**
- * Set the primary node address for querying blockchain
- * @param address - Node address or URL
- */
-setNode(address: string): void {
-  this.nagURL = address;
 }
 }
 

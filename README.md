@@ -41,29 +41,40 @@ import { CircularProtocolAPI } from 'circular-protocol';
 
 async function main() {
   // Initialize the API client
-  const api = new CircularProtocolAPI({
-    nagUrl: 'https://nag.circularlabs.io/NAG.php?cep=',
-    nagKey: 'your-api-key', // Optional
-  });
+  const api = new CircularProtocolAPI(
+    'https://nag.circularlabs.io/NAG.php?cep=',  // Optional: NAG URL
+    'your-api-key'  // Optional: API key
+  );
 
   try {
-    // Check if a wallet exists
-    const result = await api.checkWallet({
-      Address: '0xd55872dbe508fd27445889b9d81bbc9411bb0f1353153a249f2fb34ef2690310',
+    // Method 1: Positional parameters (JavaScript-style, matches circular-js-npm)
+    const result1 = await api.checkWallet(
+      'MainNet',
+      '0xd55872dbe508fd27445889b9d81bbc9411bb0f1353153a249f2fb34ef2690310'
+    );
+
+    // Method 2: Request object (TypeScript-style, type-safe)
+    const result2 = await api.checkWallet({
       Blockchain: 'MainNet',
-      Version: '1.0.8',
+      Address: '0xd55872dbe508fd27445889b9d81bbc9411bb0f1353153a249f2fb34ef2690310'
+      // Version automatically injected, no need to specify
     });
 
-    console.log('Wallet exists:', result.Response);
+    console.log('Wallet exists:', result1.Response);
   } catch (error) {
-    if (error instanceof CircularAPIException) {
-      console.error('API Error:', error.message);
-    }
+    console.error('API Error:', error);
   }
 }
 
 main();
 ```
+
+### Key Features in v1.0.9
+
+- **Dual API Styles**: Use either positional parameters or request objects
+- **Auto-Preprocessing**: Hex values automatically normalized ('0x' prefix optional)
+- **Version Auto-Injection**: No need to specify version in requests
+- **Full JavaScript Compatibility**: Drop-in replacement for circular-js-npm
 
 ## 📜 API Reference
 

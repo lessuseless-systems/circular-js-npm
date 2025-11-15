@@ -16,8 +16,8 @@ module.exports = {
   "module": {
     "rules": [
       {
-        "exclude": "/node_modules/",
-        "test": "/\\.ts$/",
+        "exclude": /node_modules/,
+        "test": /\.ts$/,
         "use": "ts-loader"
       }
     ]
@@ -29,7 +29,7 @@ module.exports = {
     "clean": false,
     "filename": "index.cjs",
     "libraryTarget": "commonjs2",
-    "path": "path.resolve(__dirname, 'lib')"
+    "path": path.resolve(__dirname, 'lib')
   },
   "resolve": {
     "extensions": [
