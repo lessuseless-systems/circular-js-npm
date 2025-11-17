@@ -75,33 +75,25 @@ describe('E2E Tests - Real NAG Endpoints', () => {
   if (hasReadEnv) {
     describe('Wallet API E2E Tests (Read-Only)', () => {
   test('E2E: Check if test wallet exists on blockchain', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.checkWallet(request)
 
-expect(result.Result).toBeDefined()
+    expect(result.Result).toBeDefined()
 
     console.log('  ✅ E2E: Check if test wallet exists on blockchain')
   }, 30000)
 
   test('E2E: Get latest transactions for wallet', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getLatestTransactions(request)
 
@@ -111,15 +103,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Retrieve wallet details from blockchain', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getWallet(request)
 
@@ -129,16 +117,12 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get wallet balance from blockchain', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Asset": "CIRX",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Asset: 'CIRX',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getWalletBalance(request)
 
@@ -148,15 +132,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get wallet nonce from blockchain', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getWalletNonce(request)
 
@@ -168,14 +148,10 @@ expect(result.Result).toBeDefined()
 
     describe('Transaction API E2E Tests (Read-Only)', () => {
   test('E2E: Get pending transactions', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getPendingTransaction(request)
 
@@ -185,15 +161,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get transactions by wallet address', async () => {
-    const request = JSON.parse(`{
-  "Address": "${CIRCULAR_TEST_ADDRESS}",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Address: process.env.CIRCULAR_TEST_ADDRESS || '',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getTransactionbyAddress(request)
 
@@ -203,16 +175,12 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get transactions by date range', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "EndDate": "2024-12-31",
-  "StartDate": "2024-01-01",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      EndDate: '2024-12-31',
+      StartDate: '2024-01-01',
+      Version: '1.0.8'
+    }
 
     const result = await api.getTransactionbyDate(request)
 
@@ -222,15 +190,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get transaction by transaction ID', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "TransactionID": "0x0000000000000000000000000000000000000000000000000000000000000000",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      TransactionID: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      Version: '1.0.8'
+    }
 
     const result = await api.getTransactionbyID(request)
 
@@ -240,15 +204,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get transactions by node ID', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "NodeID": "node-0001",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      NodeID: 'node-0001',
+      Version: '1.0.8'
+    }
 
     const result = await api.getTransactionbyNode(request)
 
@@ -260,15 +220,11 @@ expect(result.Result).toBeDefined()
 
     describe('Asset API E2E Tests (Read-Only)', () => {
   test('E2E: Get specific asset information', async () => {
-    const request = JSON.parse(`{
-  "AssetName": "CIRX",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      AssetName: 'CIRX',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getAsset(request)
 
@@ -278,14 +234,10 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get list of all assets on blockchain', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getAssetList(request)
 
@@ -295,15 +247,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get asset supply information', async () => {
-    const request = JSON.parse(`{
-  "AssetName": "CIRX",
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      AssetName: 'CIRX',
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getAssetSupply(request)
 
@@ -313,15 +261,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get voucher details', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8",
-  "VoucherID": "test-voucher-id"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8',
+      VoucherID: 'test-voucher-id'
+    }
 
     const result = await api.getVoucher(request)
 
@@ -333,13 +277,9 @@ expect(result.Result).toBeDefined()
 
     describe('Network API E2E Tests (Read-Only)', () => {
   test('E2E: Retrieve list of available blockchains', async () => {
-    const request = JSON.parse(`{
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Version: '1.0.8'
+    }
 
     const result = await api.getBlockchains(request)
 
@@ -352,14 +292,10 @@ expect(Array.isArray(result.Response.Blockchains)).toBe(true)
 
     describe('Block API E2E Tests (Read-Only)', () => {
   test('E2E: Get blockchain analytics and statistics', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getAnalytics(request)
 
@@ -369,15 +305,11 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Retrieve specific block by number', async () => {
-    const request = JSON.parse(`{
-  "BlockNumber": 1,
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      BlockNumber: 1,
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getBlock(request)
 
@@ -387,14 +319,10 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Get current block count from blockchain', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Version: '1.0.8'
+    }
 
     const result = await api.getBlockCount(request)
 
@@ -404,16 +332,12 @@ expect(result.Result).toBeDefined()
   }, 30000)
 
   test('E2E: Retrieve range of blocks', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "EndBlock": 10,
-  "StartBlock": 1,
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      EndBlock: 10,
+      StartBlock: 1,
+      Version: '1.0.8'
+    }
 
     const result = await api.getBlockRange(request)
 
@@ -425,15 +349,11 @@ expect(result.Result).toBeDefined()
 
     describe('Domain API E2E Tests (Read-Only)', () => {
   test('E2E: Resolve domain name to wallet address', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "Domain": "test.circular",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      Domain: 'test.circular',
+      Version: '1.0.8'
+    }
 
     const result = await api.getDomain(request)
 
@@ -445,17 +365,13 @@ expect(result.Result).toBeDefined()
 
     describe('Contract API E2E Tests (Read-Only)', () => {
   test('E2E: Test smart contract execution (simulation)', async () => {
-    const request = JSON.parse(`{
-  "Blockchain": "${CIRCULAR_TEST_BLOCKCHAIN}",
-  "ContractAddress": "0x0000000000000000000000000000000000000000000000000000000000000000",
-  "Method": "testMethod",
-  "Parameters": "{}",
-  "Version": "1.0.8"
-}`.replace(
-      /\$\{CIRCULAR_TEST_ADDRESS\}/g, process.env.CIRCULAR_TEST_ADDRESS || ''
-    ).replace(
-      /\$\{CIRCULAR_TEST_BLOCKCHAIN\}/g, process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
-    ))
+    const request = {
+      Blockchain: process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2',
+      ContractAddress: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      Method: 'testMethod',
+      Parameters: '{}',
+      Version: '1.0.8'
+    }
 
     const result = await api.testContract(request)
 
@@ -518,48 +434,68 @@ test('E2E Write: Certify data on the blockchain (C_TYPE_CERTIFICATE)', async () 
   // Derive address and public key from private key
   const privateKey = process.env.CIRCULAR_PRIVATE_KEY!
   const publicKey = api.getPublicKey(privateKey)
-  const address = api.hashString(publicKey)
+  const from = api.hashString(publicKey)
+  const to = from
 
-  // Format timestamp
-  const now = new Date()
-  const timestamp = now.toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/-/g, ':').substring(0, 19)
+  // Get properly formatted timestamp
+  const timestamp = api.getFormattedTimestamp()
 
-  const blockchain = process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
+  // Normalize blockchain (remove 0x prefix if present)
+  let blockchain = process.env.CIRCULAR_TEST_BLOCKCHAIN || '0x8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2'
+  blockchain = api.hexFix(blockchain)
 
-      // Build certificate transaction request
-      const fromWallet = address
-      const toWallet = address
-      const amount = '0'
-      const transactionType = 'C_TYPE_CERTIFICATE'
-      const voucher = ''
-      const data = `E2E Test Data Certification ${Date.now()}`
-  
-      const signaturePayload = blockchain + fromWallet + toWallet + amount + transactionType + timestamp + voucher + data
-      const signature = api.signMessage(signaturePayload, privateKey)
-  
-      const request = {
-        Blockchain: blockchain,
-        FromWallet: fromWallet,
-        ToWallet: toWallet,
-        Amount: amount,
-        TransactionType: transactionType,
-        Timestamp: timestamp,
-        Voucher: voucher,
-        Data: data,
-        Signature: signature,
-        Version: '1.0.8'
-      }
-  
-      console.log('  📝 Certifying data on blockchain...')
-      const result = await api.sendTransaction(request)
-  
+  // Build certificate transaction
+  const type = 'C_TYPE_CERTIFICATE'
+  const data = `E2E Test Data Certification ${Date.now()}`
+
+  // Build payload with Action and Data (like Python implementation)
+  const payloadObj = {
+    Action: 'CP_CERTIFICATE',
+    Data: data
+  }
+  const payload = api.stringToHex(JSON.stringify(payloadObj))
+
+  // Get wallet nonce and increment it
+  let nonce = '0'
+  try {
+    const nonceResponse = await api.getWalletNonce(blockchain, from)
+    if (nonceResponse.Result === 200) {
+      const currentNonce = parseInt(nonceResponse.Response.Nonce)
+      nonce = String(currentNonce + 1)
+    }
+  } catch (error) {
+    // Wallet might not be registered, use nonce 0
+  }
+
+  // Calculate transaction ID from blockchain + from + to + payload + nonce + timestamp
+  const id = api.hashString(blockchain + from + to + payload + nonce + timestamp)
+
+  // Sign the transaction ID
+  const signature = api.signMessage(id, privateKey)
+
+  console.log('  📝 Certifying data on blockchain...')
+
+  const result = await api.sendTransaction(
+    id,
+    from,
+    to,
+    timestamp,
+    type,
+    payload,
+    nonce,
+    signature,
+    blockchain
+  )
+
   expect(result.Result).toBe(200)
-  expect(result.Response.TransactionID).toBeDefined()
-  expect(typeof result.Response.TransactionID === 'string' && /^(0x)?[0-9a-fA-F]+$/.test(result.Response.TransactionID)).toBe(true)
-  
-      console.log('  ✅ Data certified successfully')
-      console.log('  🔗 Transaction ID:', result.Response?.TransactionID)
-      console.log('  📄 Certified data:', data)
+  // The Response might contain TxID or TransactionID
+  const txId = result.Response.TxID || result.Response.TransactionID
+  expect(txId).toBeDefined()
+  expect(typeof txId === 'string' && /^(0x)?[0-9a-fA-F]+$/.test(txId)).toBe(true)
+
+  console.log('  ✅ Data certified successfully')
+  console.log('  🔗 Transaction ID:', txId)
+  console.log('  📄 Certified data:', data)
 }, 60000)
 
 test('E2E Write: Call smart contract function on blockchain', async () => {
