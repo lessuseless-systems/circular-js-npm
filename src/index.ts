@@ -326,10 +326,10 @@ export class CircularProtocolAPI {
   constructor(nagUrl?: string, nagKey?: string) {
     this.headers = {};
     if (nagUrl) {
-      this.setNAGURL(nagUrl);
+      this.setNagUrl(nagUrl);
     }
     if (nagKey) {
-      this.setNAGKey(nagKey);
+      this.setNagKey(nagKey);
     }
   }
 
@@ -1763,7 +1763,7 @@ getFormattedTimestamp(): string {
  * Set custom NAG endpoint URL
  * @param url - NAG endpoint URL
  */
-setNAGURL(url: string): void {
+setNagUrl(url: string): void {
   this.nagURL = url;
 }
 
@@ -1771,7 +1771,7 @@ setNAGURL(url: string): void {
  * Get current NAG endpoint URL
  * @returns Current NAG URL
  */
-getNAGURL(): string {
+getNagUrl(): string {
   return this.nagURL;
 }
 
@@ -1779,7 +1779,7 @@ getNAGURL(): string {
  * Set NAG API key for authenticated requests
  * @param key - API key
  */
-setNAGKey(key: string): void {
+setNagKey(key: string): void {
   this.nagKey = key;
 }
 
@@ -1787,8 +1787,97 @@ setNAGKey(key: string): void {
  * Get current NAG API key
  * @returns Current NAG key
  */
-getNAGKey(): string {
+getNagKey(): string {
   return this.nagKey;
+}
+
+/**
+ * Set custom HTTP header for API requests
+ *
+ * Adds or updates a custom HTTP header that will be included in all API requests.
+ * This is useful for adding authentication tokens, custom tracking headers, etc.
+ *
+ * @param key - Header name (e.g., 'Authorization', 'X-Custom-Header')
+ * @param value - Header value
+ *
+ * @example
+ * api.setHeader('Authorization', 'Bearer token123');
+ * api.setHeader('X-Custom-ID', 'my-app-id');
+ *
+ * @see {@link _makeRequest} which uses these headers
+ */
+setHeader(key: string, value: string): void {
+  this.headers[key] = value;
+}
+
+/**
+ * Get SDK version
+ *
+ * Returns the current version of the Circular Protocol TypeScript SDK.
+ * This version is also used as the default Version parameter in API requests.
+ *
+ * @returns SDK version string
+ *
+ * @example
+ * const version = api.getVersion();
+ * console.log(`SDK Version: ${version}`); // '1.0.9'
+ */
+getVersion(): string {
+  return this.version;
+}
+
+/**
+ * Set primary node address for blockchain queries
+ *
+ * Configures the primary node address/endpoint for querying the blockchain.
+ * This allows switching between different nodes or networks.
+ *
+ * @param address - Node address or endpoint URL
+ *
+ * @example
+ * api.setNode('https://node1.circular.network');
+ * api.setNode('https://testnet-node.circular.network');
+ *
+ * @see {@link setNagUrl} for setting the NAG endpoint
+ */
+setNode(address: string): void {
+  // In the current implementation, the node address is the same as NAG URL
+  // This method provides compatibility with other SDKs
+  this.setNagUrl(address);
+}
+
+/**
+ * Clean up SDK resources
+ *
+ * Performs cleanup of SDK resources including clearing headers, error state,
+ * and any cached data. Call this when the SDK instance is no longer needed.
+ * Note: In browser/Node.js environments, fetch() doesn't require explicit cleanup.
+ *
+ * @example
+ * const api = new CircularProtocolAPI();
+ * // ... use api ...
+ * api.dispose(); // Clean up when done
+ *
+ * @example
+ * // In a React component
+ * useEffect(() => {
+ *   const api = new CircularProtocolAPI();
+ *   return () => api.dispose(); // Cleanup on unmount
+ * }, []);
+ */
+dispose(): void {
+  // Clear headers
+  Object.keys(this.headers).forEach(key => delete this.headers[key]);
+
+  // Clear error state
+  this.lastError = '';
+
+  // Clear sensitive data
+  this.nagKey = '';
+
+  // Note: fetch() in Node.js and browsers doesn't have persistent connections
+  // that need explicit cleanup like HTTP clients in other languages.
+  // This method is provided for API compatibility with Python/Dart SDKs.
 }
 
   // ============================================================================
@@ -1804,17 +1893,75 @@ GetError(): string {
 }
 
 /**
- * Handle error and store error message
- * @param error - Error object or string
+ * Get last error message (lowercase version for consistency with other SDKs)
+ *
+ * Retrieves the last error message encountered by the SDK.
+ * Useful for debugging and error handling in applications.
+ *
+ * @returns Last error message as a string, or empty string if no error
+ *
+ * @example
+ * try {
+ *   await api.checkWallet('MainNet', 'invalid-address');
+ * } catch (error) {
+ *   console.log(`Error: ${api.getError()}`);
+ * }
  */
-private handleError(error: any): void {
-  if (error instanceof Error) {
-    this.lastError = error.message;
-  } else if (typeof error === 'string') {
-    this.lastError = error;
+getError(): string {
+  return this.lastError;
+}
+
+/**
+ * Handle error and store error message (public version for API error handling)
+ *
+ * Processes API error responses and stores the error message for later retrieval.
+ * Can accept error objects, strings, or API response objects with error information.
+ *
+ * @param result - Error object, string, or API response object
+ *
+ * @example
+ * // Handle API response
+ * const response = await api.checkWallet('MainNet', address);
+ * if (response.Result !== 200) {
+ *   api.handleError(response);
+ *   console.log(`API Error: ${api.getError()}`);
+ * }
+ *
+ * @example
+ * // Handle generic error
+ * try {
+ *   // some operation
+ * } catch (error) {
+ *   api.handleError(error);
+ * }
+ */
+handleError(result: any): void {
+  if (result instanceof Error) {
+    this.lastError = result.message;
+  } else if (typeof result === 'string') {
+    this.lastError = result;
+  } else if (result && typeof result === 'object') {
+    // Handle API response objects
+    if (result.Response && typeof result.Response === 'string') {
+      this.lastError = result.Response;
+    } else if (result.message) {
+      this.lastError = result.message;
+    } else if (result.error) {
+      this.lastError = result.error;
+    } else {
+      this.lastError = JSON.stringify(result);
+    }
   } else {
     this.lastError = 'Unknown error';
   }
+}
+
+/**
+ * Internal error handler (private version)
+ * @param error - Error object or string
+ */
+private _internalHandleError(error: any): void {
+  this.handleError(error);
 }
 
 /**
@@ -1846,7 +1993,7 @@ async getTransactionOutcome(
     const elapsed = Date.now() - startTime;
     if (elapsed >= timeoutMs) {
       const error = `Transaction ${txID} timed out after ${timeoutSec} seconds`;
-      this.handleError(error);
+      this._internalHandleError(error);
       throw new Error(error);
     }
 
@@ -1872,7 +2019,7 @@ async getTransactionOutcome(
     } catch (error) {
       // If error is not just "pending", rethrow
       if (error instanceof Error && !error.message.includes('pending')) {
-        this.handleError(error);
+        this._internalHandleError(error);
         throw error;
       }
 

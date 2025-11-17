@@ -1,0 +1,2602 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    npm-publish.yml
+lib/
+  index.cjs
+  index.js
+tests/
+  circularProtocolAPI.test.js
+LICENSE
+package.json
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".github/workflows/npm-publish.yml">
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+</file>
+
+<file path="lib/index.cjs">
+const elliptic = require('elliptic');
+const sha256 = require('sha256');
+const https = require('https');
+const { URL } = require('url');
+
+
+/*******************************************************************************
+
+ CIRCULAR LAYER 1 BLOCKCHAIN PROTOCOL INTERFACE LIBRARY
+ License : Open Source for private and commercial use
+
+ CIRCULAR GLOBAL LEDGERS, INC. - USA
+
+
+ Version : 1.0.14
+
+ Creation: 7/12/2022
+ Update  : 28/01/2025
+
+ Originator: Gianluca De Novi, PhD
+ Contributors: Danny De Novi, redorc83
+
+ *******************************************************************************/
+
+/*
+ *   Circular Class
+ */
+let CircularProtocolAPI = (function(){
+
+
+    // Support Node Software Version
+    const version = '1.0.8';
+
+    // Application NAG Key
+    let NAG_KEY='';
+
+    // Default NAG Link
+    let NAG_URL='https://nag.circularlabs.io/NAG.php?cep=';
+
+    function getNAGURL() {
+        return NAG_URL
+    }
+
+    function getNAGKey() {
+        return NAG_KEY;
+    }
+
+    function hashString(str) {
+        return sha256(str);
+    }
+
+    // Library Errors Variable
+    let LastError;
+
+    // Helper function for error handling
+    function handleError(error) {
+        console.error('Error:', error);
+        LastError = error.message || 'An unknown error occurred';
+        return { success: false, error: LastError };
+    }
+
+    /*
+     *  Retrieves the Library Error
+     */
+    function GetError(){  return LastError; }
+
+
+
+    /* HELPER FUNCTIONS ***********************************************************/
+
+
+    /*
+     * Function to add a leading zero to numbers less than 10
+     * num : number to pad
+     *
+     */
+    function padNumber(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+    function makeRequest(action, data) {
+        // Build the full URL using the base URL and action
+        const fullUrl = `${getNAGURL()}${action}`;
+        const parsedUrl = new URL(fullUrl);
+        const dim = Buffer.byteLength(JSON.stringify(data));
+    
+        return new Promise((resolve, reject) => {
+            const options = {
+                hostname: parsedUrl.hostname,
+                path: parsedUrl.pathname + parsedUrl.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': dim
+                },
+                timeout: 30000
+            };
+    
+            const req = https.request(options, (res) => {
+                let responseData = '';
+        
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+        
+                res.on('end', () => {
+                    try {
+                        const parsedData = JSON.parse(responseData);
+                        resolve(parsedData);
+                    } catch (err) {
+                        reject(new Error(`Error parsing response data: ${err.message}`));
+                    }
+                });
+            });
+    
+            req.on('error', (e) => {
+                reject(new Error(`Request error: ${e.message}`));
+            });
+    
+            req.on('timeout', () => {
+                req.abort();
+                reject(new Error('Request timed out'));
+            });
+    
+            req.write(JSON.stringify(data));
+            req.end();
+        });
+    }
+    
+    // 
+
+
+
+
+    /*
+     *  Generate Timestamp formated
+     *  YYYY:MM:DD-hh:mm:ss
+     */
+    function getFormattedTimestamp() {
+        let date = new Date();
+        let year = date.getUTCFullYear();
+        let month = padNumber(date.getUTCMonth() + 1);
+        let day = padNumber(date.getUTCDate());
+        let hours = padNumber(date.getUTCHours());
+        let minutes = padNumber(date.getUTCMinutes());
+        let seconds = padNumber(date.getUTCSeconds());
+
+        // Formats the date and time in a specific format and returns it
+        return `${year}:${month}:${day}-${hours}:${minutes}:${seconds}`;
+    }
+
+
+
+    /*
+     *  Sign a message using secp256k1
+     *  message: Message to sign
+     *  provateKey: Private key in hex format (minus '0x')
+     */
+    function signMessage(message, privateKey) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPrivate(hexFix(privateKey), 'hex');
+        const msgHash = sha256(message);
+
+        // The signature is a DER-encoded hex string
+        const signature = key.sign(msgHash).toDER('hex');
+        return signature;
+    }
+
+
+
+
+
+    /*
+     *   Verify Message Signature
+     */
+    function verifySignature(publicKey, message, signature) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPublic(publicKey, 'hex');
+        const msgHash = sha256(message);
+
+        return key.verify(msgHash, signature, 'hex');
+    }
+
+
+
+
+
+    /*
+     *   Returns a public key from a private key
+     */
+    function getPublicKey(privateKey) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPrivate(privateKey, 'hex');
+        const publicKey = key.getPublic('hex');
+
+
+        return publicKey;
+    }
+
+
+
+
+    /*
+     *  Convert a string in its hexadecimal representation without '0x'
+     */
+    function stringToHex(str) {
+        let hexString = '';
+        for (let i = 0; i < str.length; i++) {
+            const hex = str.charCodeAt(i).toString(16);
+            hexString += ('00' + hex).slice(-2);
+        }
+        return hexString;
+    }
+
+
+
+    /*
+     *  Converts a hexadecimal string in a regulare string
+     */
+    function hexToString(hex) {
+        let str = '';
+        hex = hexFix(hex);
+        for (let i = 0; i < hex.length; i += 2) {
+            let code = parseInt(hex.substr(i, 2), 16);
+            if (!isNaN(code) && code !== 0) {
+                str += String.fromCharCode(code);
+            }
+        }
+        return str;
+    }
+
+
+
+
+    /*
+     *
+     *  removes '0x' from hexadecimal numbers if the have it
+     *
+     */
+    function hexFix(word)
+    {
+        if (typeof word === 'string') {
+            let Word = word;
+            if (word.startsWith('0x')) { Word = Word.slice(2); }
+            return Word;
+        }
+        return '';
+    }
+
+
+
+
+
+
+
+
+    /* NAG FUNCTIONS **************************************************************/
+
+
+    /*
+     *  Sets the Application NAG Key
+     */
+    function setNAGKey(nagKey)
+    {
+        NAG_KEY = nagKey;
+    }
+
+
+
+    /*
+     *  Sets the Network Access Gateway (NAG) URL
+     *  If not used, the default URL is selected
+     */
+    function setNAGURL(nURL)
+    {
+        NAG_URL = nURL;
+    }
+
+
+
+
+    /* Smart Contracts ************************************************************/
+
+    /*
+     *   Test the execution of a smart contract project
+     *
+     *   Blockchain: Blockchain where the smart contract will be tested
+     *   From: Developer's wallet address
+     *   Project: Hyper Code Lighe Smart Contract Project
+     */
+    async function testContract(blockchain, from, project) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "From": hexFix(from),
+                "Timestamp": getFormattedTimestamp(),
+                "Project": stringToHex(project),
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_TestContract_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred during contract test.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /*
+     *  Local Smart Contract Call
+     *
+     *  Blockchain: Blockchain where the Smart Contract is deployed
+     *  From: Caller wallet Address
+     *  Address: Smart Contract Address
+     *  Request: Smart Contract Local endpoint
+     */
+    async function callContract(blockchain, from, address, request) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "From": hexFix(from),
+                "Address": hexFix(address),
+                "Request": stringToHex(Request),
+                "Timestamp": getFormattedTimestamp(),
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_CallContract_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred during contract call.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /* WALLET FUNCTIONS  **********************************************************/
+
+    /*
+     *  Checks if a Wallet is registered on the chain
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function checkWallet(blockchain, address) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_CheckWallet_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred while checking wallet.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+    /*
+     *  Retrieves a Wallet
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function getWallet(blockchain, address) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_GetWallet_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred while retrieving wallet.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+    /*
+     *  Retrieves a Wallet
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function getLatestTransactions(blockchain, address) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_GetLatestTransactions_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred while retrieving latest transactions.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /*
+     *   Retrieves the balance of a specified asset in a Wallet
+     *   Blockchain: Blockchain where the wallet is registered
+     *   Address: Wallet address
+     *   Asset: Asset Name (example 'CIRX')
+     */
+    async function getWalletBalance(blockchain, address, asset) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Asset": asset,
+                "Version": version
+            };
+    
+            const response = await makeRequest('Circular_GetWalletBalance_', data);
+    
+            if (!response || response.error) {
+                throw new Error(response ? response.error : 'Unknown error occurred while retrieving wallet balance.');
+            }
+    
+            return response;
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /*
+     *   Register a wallet on a desired blockchain.
+     *   The same wallet can be registered on multiple blockchains
+     *   Blockchain: Blockchain where the wallet will be registered
+     *   PublicKey: Wallet PublicKey
+     *
+     *   Without registration on the blockchain the wallet will not be reachable
+     */
+    async function registerWallet(blockchain, publicKey) {
+        try {
+            blockchain = hexFix(blockchain);
+            publicKey = hexFix(publicKey);
+            const From = sha256(publicKey);
+            const To = From;
+            const Nonce = '0';
+            const Type = 'C_TYPE_REGISTERWALLET';
+    
+            const PayloadObj = {
+                "Action": "CP_REGISTERWALLET",
+                "PublicKey": publicKey
+            };
+    
+            const jsonstr = JSON.stringify(PayloadObj);
+            const Payload = stringToHex(jsonstr);
+            const Timestamp = getFormattedTimestamp();
+            const ID = sha256(blockchain + From + To + Payload + Nonce + Timestamp);
+            const Signature = "";
+    
+            return await sendTransaction(ID, From, To, Timestamp, Type, Payload, Nonce, Signature, blockchain);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+    /* DOMAINS MANAGEMENT *********************************************************/
+
+
+    /*
+     *  Resolves the domain name returning the wallet address associated to the domain name
+     *  A single wallet can have multiple domains associations
+     *  Blockchain : Blockchain where the domain and wallet are registered
+     *  Name: Domain Name
+     */
+    async function getDomain(blockchain, name) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Domain": name,
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_ResolveDomain_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+/// PARAMETRIC ASSETS MANAGEMENT ///////////////////////////////////////////////////////////////////////////////////////
+
+
+    /*
+     *  Retrieves the list of all assets minted on a specific blockchain
+     *  Blockchain: Blockchin where to request the list
+     */
+    async function getAssetList(blockchain) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetAssetList_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /*
+     *  Retrieves an Asset Descriptor
+     *  Blockchain: Blockchain where the asset is minted
+     *  Name: Asset Name (example 'CIRX')
+     */
+    async function getAsset(blockchain, name) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "AssetName": name,
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetAsset_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+    /*
+     *  Retrieve The total, circulating and residual supply of a specified asset
+     *  Blockchain: Blockchain where the asset is minted
+     *  Name: Asset Name (example 'CIRX')
+     */
+    async function getAssetSupply(blockchain, name) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "AssetName": name,
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetAssetSupply_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+// VOUCHERS MANAGEMENT//////////////////////////////////////////////////////////
+
+    /*
+     *  Retrieves an existing Voucher
+     *  Blockchain: blockchain where the voucher was minted
+     *  Code: voucher code
+     */
+    async function getVoucher(blockchain, code) {
+        try {
+            code = String(code);
+            if (code.startsWith('0x')) { code = code.slice(2); }
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Code": code,
+                "Version": version
+            };
+
+    
+            return await makeRequest('Circular_GetVoucher_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+// BLOCKS MANAGEMENT //////////////////////////////////////////////////////////////////////////////////
+
+    /*
+     *  Retrieve All blocks in a specified range
+     *  Blockchain: blockchain where to search the blocks
+     *  Start: Initial block
+     *  End: End block
+     *
+     *  If End = 0, then Start is the number of blocks from the last one minted going backward.
+     */
+    async function getBlockRange(blockchain, start, end) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetBlockRange_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+    /*
+     *  Retrieve a desired block
+     *  Blockchain: blockchain where to search the block
+     *  Num: Block number
+     */
+    async function getBlock(blockchain, num) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "BlockNumber": String(num),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetBlock_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+    /*
+     *   Retrieves the blockchain block height
+     *
+     *   Blockchain: blockchain where to count the blocks
+     */
+    async function getBlockCount(blockchain) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetBlockHeight_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+
+// ANALYTICS ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /*
+     *   Retrieves the Blockchain  Amalytics
+     *
+     *   Blockchain: selected blockchain
+     */
+    async function getAnalytics(blockchain) {
+        try {
+            const data = {
+                "Blockchain": hexFix(blockchain),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetAnalytics_', data);
+        } catch (error) {
+            handleError(error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+
+
+    /*
+     *   Get The list of blockchains available in the network
+     *
+     */
+    async function getBlockchains() {
+        try {
+            let data = {};
+    
+            return await makeRequest('Circular_GetBlockchains_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+    
+
+
+/// TRANSACTIONS ////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /*
+     *
+     *  Searches a transaction by ID between the pending transactions
+     *
+     *  Blockchain: Blockchain where to search the transaction
+     *  TxID: Transaction ID
+     *
+     */
+    async function getPendingTransaction(blockchain, txID) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "ID": hexFix(txID),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetPendingTransaction_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+    
+
+
+    /*
+     *   Searches a Transaction by its ID
+     *   The transaction will be searched initially between the pending transactions and then in the blockchain
+     *
+     *   Blockchain: blockchain where to search the transaction
+     *   TxID: transaction ID
+     *   Start: Starting block
+     *   End: End block
+     *
+     *   if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyID(blockchain, txID, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "ID": hexFix(txID),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetTransactionbyID_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+
+    /*
+     *  Searches all transactions broadcasted by a specified node
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  NodeID: ID of the node that has broadcasted the transaction
+     *  Start: Starting block
+     *  End: End block
+     *
+     * if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyNode(blockchain, nodeID, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "NodeID": hexFix(nodeID),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetTransactionbyNode_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+    /*
+     *  Searches all transactions Involving a specified address
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  Address: Can be the sender or the recipient of the transaction
+     *  Start: Starting block
+     *  End: End block
+     *
+     * if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyAddress(blockchain, address, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetTransactionbyAddress_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+
+    async function getWalletNonce(blockchain, address) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetWalletNonce_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+    /*
+     *  Searches all transactions Involving a specified address in a specified timeframe
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  Address: Can be the sender or the recipient of the transaction
+     *  StartDate: Starting date
+     *  endDate: End date
+     *
+     */
+    async function getTransactionbyDate(blockchain, address, startDate, endDate) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "StartDate": startDate,
+                "EndDate": endDate,
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_GetTransactionbyDate_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+    /*
+     *  Submits a transaction to a desired blockchain
+     *
+     *  ID: Transaction ID
+     *  From: Transaction Sender
+     *  To: Transaction recipient
+     *  Timestamp: Formatted Timestamo YYYY:MM:DD-hh:mm:ss
+     *  Type: Transaction Type Refer to Documentation
+     *  Payload: Transaction payload
+     *  Nonce: Wallet nonce
+     *  Signature: transaction Signature
+     *  Blockchain: Blockchain where the transaction will be submitted
+     */
+    async function sendTransaction(
+        id, 
+        from, 
+        to, 
+        timestamp, 
+        type, 
+        payload, 
+        nonce, 
+        signature, 
+        blockchain
+    ) {
+        try {
+            let data = {
+                "ID": hexFix(id),
+                "From": hexFix(from),
+                "To": hexFix(to),
+                "Timestamp": timestamp,
+                "Payload": String(hexFix(payload)),
+                "Nonce": String(nonce),
+                "Signature": hexFix(signature),
+                "Blockchain": hexFix(blockchain),
+                "Type": type,
+                "Version": version
+            };
+    
+            return await makeRequest('Circular_AddTransaction_', data);
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+    
+
+
+    // Send a transaction to the blockchain
+    let intervalSec = 5;
+    /*
+     *    Recursive transaction finality polling
+     *    will search a transaction every  intervalSec seconds with a desired timeout.
+     *
+     *    Blockchain: blockchain where the transaction was submitted
+     *    TxID: Transaction ID
+     *    timeoutSec: Waiting timeout
+     *
+     */
+    function getTransactionOutcome(blockchain, txID, timeoutSec) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+            const interval = intervalSec * 1000;  // Convert seconds to milliseconds
+            const timeout = timeoutSec * 1000;    // Convert seconds to milliseconds
+
+            const checkTransaction = () => {
+                const elapsedTime = Date.now() - startTime;
+                console.log('Checking transaction...', { elapsedTime, timeout });
+
+                if (elapsedTime > timeout) {
+                    console.log('Timeout exceeded');
+                    reject(new Error('Timeout exceeded'));
+                    return;
+                }
+
+                getTransactionbyID(blockchain, txID, 0, 10).then(data => {
+                    console.log('Data received:', data);
+                    if (data.Result === 200 && data.Response !== 'Transaction Not Found' && data.Response.Status!=='Pending') {
+                        resolve(data.Response);  // Resolve if transaction is found and not 'Transaction Not Found'
+                    } else {
+                        console.log('Transaction not yet confirmed or not found, polling again...');
+                        setTimeout(checkTransaction, interval);  // Continue polling
+                    }
+                })
+                    .catch(error => {
+                        console.log('Error fetching transaction:', error);
+                        reject(error);  // Reject on error
+                    });
+            };
+
+            setTimeout(checkTransaction, interval);  // Start polling
+        });
+    }
+
+
+    // Public API
+    return {
+        checkWallet : checkWallet,
+        getWallet : getWallet,
+        getLatestTransactions : getLatestTransactions,
+        getWalletBalance : getWalletBalance,
+        testContract : testContract,
+        callContract : callContract,
+        setNAGKey : setNAGKey,
+        setNAGURL : setNAGURL,
+        hexFix : hexFix,
+        stringToHex : stringToHex,
+        hexToString : hexToString,
+        registerWallet : registerWallet,
+        getDomain : getDomain,
+        getAssetList : getAssetList,
+        getAsset : getAsset,
+        getVoucher : getVoucher,
+        getAssetSupply : getAssetSupply,
+        signMessage : signMessage,
+        getPublicKey : getPublicKey,
+        getFormattedTimestamp : getFormattedTimestamp,
+        verifySignature : verifySignature,
+        getBlock : getBlock,
+        getBlockRange : getBlockRange,
+        getBlockCount : getBlockCount,
+        getAnalytics : getAnalytics,
+        getBlockchains : getBlockchains,
+        getPendingTransaction : getPendingTransaction,
+        getTransactionbyID : getTransactionbyID,
+        getTransactionbyNode : getTransactionbyNode,
+        getTransactionbyAddress : getTransactionbyAddress,
+        getTransactionbyDate : getTransactionbyDate,
+        sendTransaction : sendTransaction,
+        getTransactionOutcome : getTransactionOutcome,
+        getWalletNonce : getWalletNonce,
+        hashString : hashString,
+    };
+})();
+module.exports = CircularProtocolAPI;
+</file>
+
+<file path="lib/index.js">
+import elliptic from 'elliptic';
+import sha256 from 'sha256';
+import fetch from 'node-fetch';
+
+/*******************************************************************************
+
+ CIRCULAR LAYER 1 BLOCKCHAIN PROTOCOL INTERFACE LIBRARY
+ License : Open Source for private and commercial use
+
+ CIRCULAR GLOBAL LEDGERS, INC. - USA
+
+
+ Version : 1.0.14
+
+ Creation: 7/12/2022
+ Update  : 28/01/2025
+
+ Originator: Gianluca De Novi, PhD
+ Contributors: Danny De Novi, redorc83
+
+ *******************************************************************************/
+
+/*
+ *   Circular Class
+ */
+let CircularProtocolAPI = (function(){
+
+
+    // Support Node Software Version
+    const version = '1.0.8';
+
+    // Library Errors Variable
+    let LastError;
+
+    // Helper function for error handling
+    function handleError(error) {
+        console.error('Error:', error);
+        LastError = error.message || 'An unknown error occurred';
+        return { success: false, error: LastError };
+    }
+
+    /*
+     *  Retrieves the Library Error
+     */
+    function GetError(){  return LastError; }
+
+    function hashString(str) {
+        return sha256(str);
+    }
+
+    /* HELPER FUNCTIONS ***********************************************************/
+
+
+    /*
+     * Function to add a leading zero to numbers less than 10
+     * num : number to pad
+     *
+     */
+    function padNumber(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+
+
+
+    /*
+     *  Generate Timestamp formated
+     *  YYYY:MM:DD-hh:mm:ss
+     */
+    function getFormattedTimestamp() {
+        let date = new Date();
+        let year = date.getUTCFullYear();
+        let month = padNumber(date.getUTCMonth() + 1);
+        let day = padNumber(date.getUTCDate());
+        let hours = padNumber(date.getUTCHours());
+        let minutes = padNumber(date.getUTCMinutes());
+        let seconds = padNumber(date.getUTCSeconds());
+
+        // Formats the date and time in a specific format and returns it
+        return `${year}:${month}:${day}-${hours}:${minutes}:${seconds}`;
+    }
+
+
+
+    /*
+     *  Sign a message using secp256k1
+     *  message: Message to sign
+     *  provateKey: Private key in hex format (minus '0x')
+     */
+    function signMessage(message, privateKey) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPrivate(hexFix(privateKey), 'hex');
+        const msgHash = sha256(message);
+
+        // The signature is a DER-encoded hex string
+        const signature = key.sign(msgHash).toDER('hex');
+        return signature;
+    }
+
+
+
+
+
+    /*
+     *   Verify Message Signature
+     */
+    function verifySignature(publicKey, message, signature) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPublic(publicKey, 'hex');
+        const msgHash = sha256(message);
+
+        return key.verify(msgHash, signature, 'hex');
+    }
+
+
+
+
+
+    /*
+     *   Returns a public key from a private key
+     */
+    function getPublicKey(privateKey) {
+        const EC = elliptic.ec;
+        const ec = new EC('secp256k1');
+        const key = ec.keyFromPrivate(privateKey, 'hex');
+        const publicKey = key.getPublic('hex');
+
+
+        return publicKey;
+    }
+
+
+
+
+    /*
+     *  Convert a string in its hexadecimal representation without '0x'
+     */
+    function stringToHex(str) {
+        let hexString = '';
+        for (let i = 0; i < str.length; i++) {
+            const hex = str.charCodeAt(i).toString(16);
+            hexString += ('00' + hex).slice(-2);
+        }
+        return hexString;
+    }
+
+
+
+    /*
+     *  Converts a hexadecimal string in a regulare string
+     */
+    function hexToString(hex) {
+        let str = '';
+        hex = hexFix(hex);
+        for (let i = 0; i < hex.length; i += 2) {
+            let code = parseInt(hex.substr(i, 2), 16);
+            if (!isNaN(code) && code !== 0) {
+                str += String.fromCharCode(code);
+            }
+        }
+        return str;
+    }
+
+
+
+
+    /*
+     *
+     *  removes '0x' from hexadecimal numbers if the have it
+     *
+     */
+    function hexFix(word)
+    {
+        if (typeof word === 'string') {
+            let Word = word;
+            if (word.startsWith('0x')) { Word = Word.slice(2); }
+            return Word;
+        }
+        return '';
+    }
+
+
+
+
+
+
+
+
+    /* NAG FUNCTIONS **************************************************************/
+
+
+    // Application NAG Key
+    let NAG_KEY='';
+
+    // Default NAG Link
+    let NAG_URL='https://nag.circularlabs.io/NAG.php?cep=';
+
+
+    /*
+     *  Sets the Application NAG Key
+     */
+    function setNAGKey(nagKey)
+    {
+        NAG_KEY = nagKey;
+    }
+
+
+
+    /*
+     *  Sets the Network Access Gateway (NAG) URL
+     *  If not used, the default URL is selected
+     */
+    function setNAGURL(nURL)
+    {
+        NAG_URL = nURL;
+    }
+
+    function getNAGURL(){
+        return NAG_URL;
+    }
+
+    function getNAGKey(){
+        return NAG_KEY;
+    }
+
+
+
+
+    /* Smart Contracts ************************************************************/
+
+    /*
+     *   Test the execution of a smart contract project
+     *
+     *   Blockchain: Blockchain where the smart contract will be tested
+     *   From: Developer's wallet address
+     *   Project: Hyper Code Lighe Smart Contract Project
+     */
+    async function testContract(blockchain, from, project) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "From": hexFix(from),
+            "Timestamp": getFormattedTimestamp(),
+            "Project": stringToHex(project),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_TestContract_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally, you can return null or a fallback value
+            return null;
+        }
+    }
+    
+
+
+
+    /*
+     *  Local Smart Contract Call
+     *
+     *  Blockchain: Blockchain where the Smart Contract is deployed
+     *  From: Caller wallet Address
+     *  Address: Smart Contract Address
+     *  Request: Smart Contract Local endpoint
+     */
+    async function callContract(blockchain, from, address, request) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "From": hexFix(from),
+            "Address": hexFix(address),
+            "Request": stringToHex(request),
+            "Timestamp": getFormattedTimestamp(),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_CallContract_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally, you can return a fallback value like null in case of failure
+            return null;
+        }
+    }
+    
+
+
+
+    /* WALLET FUNCTIONS  **********************************************************/
+
+    /*
+     *  Checks if a Wallet is registered on the chain
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function checkWallet(blockchain, address) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Address": hexFix(address),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_CheckWallet_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            return handleError(error); // Handle the error using your custom error handler
+        }
+    }
+    
+
+
+    /*
+     *  Retrieves a Wallet
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function getWallet(blockchain, address) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Address": hexFix(address),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetWallet_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally, you can return a fallback value like null or an error object
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *  Retrieves a Wallet
+     *
+     *  Blockchain: Blockchain where the wallet is registered
+     *  Address: Wallet Address
+     */
+    async function getLatestTransactions(blockchain, address) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Address": hexFix(address),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetLatestTransactions_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+    /*
+     *   Retrieves the balance of a specified asset in a Wallet
+     *   Blockchain: Blockchain where the wallet is registered
+     *   Address: Wallet address
+     *   Asset: Asset Name (example 'CIRX')
+     */
+    async function getWalletBalance(blockchain, address, asset) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Address": hexFix(address),
+            "Asset": asset,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetWalletBalance_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+    /*
+     *   Register a wallet on a desired blockchain.
+     *   The same wallet can be registered on multiple blockchains
+     *   Blockchain: Blockchain where the wallet will be registered
+     *   PublicKey: Wallet PublicKey
+     *
+     *   Without registration on the blockchain the wallet will not be reachable
+     */
+    async function registerWallet(blockchain, publicKey) {
+        // Prepare the data
+        blockchain = hexFix(blockchain);
+        publicKey = hexFix(publicKey);
+        let From = sha256(publicKey);
+        let To = From;
+        let Nonce = '0';
+        let Type = 'C_TYPE_REGISTERWALLET';
+    
+        let PayloadObj = { "Action": "CP_REGISTERWALLET", "PublicKey": publicKey };
+        let jsonstr = JSON.stringify(PayloadObj);
+        let Payload = stringToHex(jsonstr);
+    
+        let Timestamp = getFormattedTimestamp();
+        let ID = sha256(blockchain + From + To + Payload + Nonce + Timestamp);
+        let Signature = "";
+    
+        // Assuming sendTransaction is an async function, you should await it
+        try {
+            await sendTransaction(ID, From, To, Timestamp, Type, Payload, Nonce, Signature, blockchain);
+        } catch (error) {
+            console.error('Error sending transaction:', error);
+            throw error; // Optionally, rethrow the error if needed
+        }
+    
+        return ID;
+    }
+    
+
+
+    /* DOMAINS MANAGEMENT *********************************************************/
+
+
+    /*
+     *  Resolves the domain name returning the wallet address associated to the domain name
+     *  A single wallet can have multiple domains associations
+     *  Blockchain : Blockchain where the domain and wallet are registered
+     *  Name: Domain Name
+     */
+    async function getDomain(blockchain, name) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Domain": name,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_ResolveDomain_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching domain:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+/// PARAMETRIC ASSETS MANAGEMENT ///////////////////////////////////////////////////////////////////////////////////////
+
+
+    /*
+     *  Retrieves the list of all assets minted on a specific blockchain
+     *  Blockchain: Blockchin where to request the list
+     */
+    async function getAssetList(blockchain) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetAssetList_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching asset list:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+    /*
+     *  Retrieves an Asset Descriptor
+     *  Blockchain: Blockchain where the asset is minted
+     *  Name: Asset Name (example 'CIRX')
+     */
+    async function getAsset(blockchain, name) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "AssetName": name,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetAsset_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching asset:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+    /*
+     *  Retrieve The total, circulating and residual supply of a specified asset
+     *  Blockchain: Blockchain where the asset is minted
+     *  Name: Asset Name (example 'CIRX')
+     */
+    async function getAssetSupply(blockchain, name) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "AssetName": name,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetAssetSupply_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching asset supply:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+// VOUCHERS MANAGEMENT//////////////////////////////////////////////////////////
+
+    /*
+     *  Retrieves an existing Voucher
+     *  Blockchain: blockchain where the voucher was minted
+     *  Code: voucher code
+     */
+    async function getVoucher(blockchain, code) {
+
+        code = String(code);
+     
+        if (code.startsWith('0x')) { code = code.slice(2); }
+
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Code": code,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetVoucher_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching voucher:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+// BLOCKS MANAGEMENT //////////////////////////////////////////////////////////////////////////////////
+
+    /*
+     *  Retrieve All blocks in a specified range
+     *  Blockchain: blockchain where to search the blocks
+     *  Start: Initial block
+     *  End: End block
+     *
+     *  If End = 0, then Start is the number of blocks from the last one minted going backward.
+     */
+    async function getBlockRange(blockchain, start, end) {
+        // Prepare the data for the POST request
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Start": String(start),
+            "End": String(end),
+            "Version": version
+        };
+    
+        try {
+            // Make the POST request to fetch the block range
+            const response = await fetch(NAG_URL + 'Circular_GetBlockRange_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            // Check if the response is ok
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Log the raw response for debugging purposes (optional)
+            console.log(JSON.stringify(response));
+    
+            // Parse and return the JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching block range:', error);
+            // Optionally, return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *  Retrieve a desired block
+     *  Blockchain: blockchain where to search the block
+     *  Num: Block number
+     */
+    async function getBlock(blockchain, num) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "BlockNumber": String(num),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetBlock_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching block:', error);
+            // Optionally, return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *   Retrieves the blockchain block height
+     *
+     *   Blockchain: blockchain where to count the blocks
+     */
+    async function getBlockCount(blockchain) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetBlockHeight_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching block count:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+// ANALYTICS ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /*
+     *   Retrieves the Blockchain  Amalytics
+     *
+     *   Blockchain: selected blockchain
+     */
+    async function getAnalytics(blockchain) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetAnalytics_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching analytics:', error);
+            // Optionally, return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *   Get The list of blockchains available in the network
+     *
+     */
+    async function getBlockchains() {
+        let data = {};
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetBlockchains_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching blockchains:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+
+/// TRANSACTIONS ////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /*
+     *
+     *  Searches a transaction by ID between the pending transactions
+     *
+     *  Blockchain: Blockchain where to search the transaction
+     *  TxID: Transaction ID
+     *
+     */
+    async function getPendingTransaction(blockchain, txID) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "ID": hexFix(txID),
+                "Version": version
+            };
+    
+            const response = await fetch(NAG_URL + 'Circular_GetPendingTransaction_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Await the JSON parsing before returning
+            return await response.json();
+            
+        } catch (error) {
+            console.error('Error fetching pending transaction:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *   Searches a Transaction by its ID
+     *   The transaction will be searched initially between the pending transactions and then in the blockchain
+     *
+     *   Blockchain: blockchain where to search the transaction
+     *   TxID: transaction ID
+     *   Start: Starting block
+     *   End: End block
+     *
+     *   if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyID(blockchain, txID, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "ID": hexFix(txID),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            const response = await fetch(NAG_URL + 'Circular_GetTransactionbyID_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Await the JSON parsing before returning
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching transaction by ID:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+
+
+    /*
+     *  Searches all transactions broadcasted by a specified node
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  NodeID: ID of the node that has broadcasted the transaction
+     *  Start: Starting block
+     *  End: End block
+     *
+     * if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyNode(blockchain, nodeID, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "NodeID": hexFix(nodeID),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            const response = await fetch(NAG_URL + 'Circular_GetTransactionbyNode_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Await the JSON parsing before returning
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching transaction by node:', error);
+            // Optionally handle the error using handleError or return null
+            return handleError ? handleError(error) : null;
+        }
+    }
+    
+
+    /*
+     *  Searches all transactions Involving a specified address
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  Address: Can be the sender or the recipient of the transaction
+     *  Start: Starting block
+     *  End: End block
+     *
+     * if End = 0 Start indicates the number of blocks starting from the last block minted
+     */
+    async function getTransactionbyAddress(blockchain, address, start, end) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "Start": String(start),
+                "End": String(end),
+                "Version": version
+            };
+    
+            const response = await fetch(NAG_URL + 'Circular_GetTransactionbyAddress_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Await the JSON parsing before returning
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching transactions by address:', error);
+            // Optionally return null or call handleError if defined
+            return handleError ? handleError(error) : null;
+        }
+    }
+    
+
+
+    async function getWalletNonce(blockchain, address) {
+        let data = {
+            "Blockchain": hexFix(blockchain),
+            "Address": hexFix(address),
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_GetWalletNonce_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Return the parsed JSON response
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching wallet nonce:', error);
+            // Optionally return null or handle the error as needed
+            return null;
+        }
+    }
+    
+    /*
+     *  Searches all transactions Involving a specified address in a specified timeframe
+     *
+     *  Blockchain: blockchain where to search the transaction
+     *  Address: Can be the sender or the recipient of the transaction
+     *  StartDate: Starting date
+     *  endDate: End date
+     *
+     */
+    async function getTransactionbyDate(blockchain, address, startDate, endDate) {
+        try {
+            let data = {
+                "Blockchain": hexFix(blockchain),
+                "Address": hexFix(address),
+                "StartDate": startDate,
+                "EndDate": endDate,
+                "Version": version
+            };
+    
+            const response = await fetch(NAG_URL + 'Circular_GetTransactionbyDate_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Await the JSON parsing before returning
+            return await response.json();
+    
+        } catch (error) {
+            console.error('Error fetching transactions by date:', error);
+            // Optionally return null or handle the error as needed
+            return handleError ? handleError(error) : null;
+        }
+    }
+    
+
+    /*
+     *  Submits a transaction to a desired blockchain
+     *
+     *  ID: Transaction ID
+     *  From: Transaction Sender
+     *  To: Transaction recipient
+     *  Timestamp: Formatted Timestamo YYYY:MM:DD-hh:mm:ss
+     *  Type: Transaction Type Refer to Documentation
+     *  Payload: Transaction payload
+     *  Nonce: Wallet nonce
+     *  Signature: transaction Signature
+     *  Blockchain: Blockchain where the transaction will be submitted
+     */
+    async function sendTransaction(
+        id,          // Transaction ID (hash)
+        from,        // Sender Wallet address
+        to,          // Receiver Wallet Address
+        timestamp,   // Transaction Timestamp
+        type,        // Type of Transaction
+        payload,     // Payload of transaction in accordance with the type
+        nonce,
+        signature,   // Private Key for the Sender Wallet Address
+        blockchain   // Blockchain on which the transaction will be stored (it will involve only assets on the same chain)
+    ) {
+        let data = {
+            "ID": hexFix(id),
+            "From": hexFix(from),
+            "To": hexFix(to),
+            "Timestamp": timestamp,
+            "Payload": String(hexFix(payload)),
+            "Nonce": String(nonce),
+            "Signature": hexFix(signature),
+            "Blockchain": hexFix(blockchain),
+            "Type": type,
+            "Version": version
+        };
+    
+        try {
+            const response = await fetch(NAG_URL + 'Circular_AddTransaction_', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+    
+            const text = await response.text(); // The response text from the server
+    
+            // Try to parse the response as JSON
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                // If parsing fails, return the raw text with the status
+                return { status: response.status, message: text };
+            }
+        } catch (error) {
+            console.error('Error sending transaction:', error);
+            handleError(error); // Ensure handleError is called if available
+            // Return a custom JSON object indicating the error
+            return { success: false, message: 'Server unreachable', error: error.toString() };
+        }
+    }
+    
+
+    // Send a transaction to the blockchain
+    let intervalSec = 5;
+    /*
+     *    Recursive transaction finality polling
+     *    will search a transaction every  intervalSec seconds with a desired timeout.
+     *
+     *    Blockchain: blockchain where the transaction was submitted
+     *    TxID: Transaction ID
+     *    timeoutSec: Waiting timeout
+     *
+     */
+    function getTransactionOutcome(blockchain, txID, timeoutSec, intervalSec) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+            const interval = intervalSec * 1000;  // Convert seconds to milliseconds
+            const timeout = timeoutSec * 1000;    // Convert seconds to milliseconds
+    
+            const checkTransaction = () => {
+                const elapsedTime = Date.now() - startTime;
+                console.log('Checking transaction...', { elapsedTime, timeout });
+    
+                if (elapsedTime > timeout) {
+                    console.log('Timeout exceeded');
+                    reject(new Error('Timeout exceeded'));
+                    return;
+                }
+    
+                // Call getTransactionbyID and check the response
+                getTransactionbyID(blockchain, txID, 0, 10)
+                    .then(data => {
+                        console.log('Data received:', data);
+                        if (data.Result === 200 && data.Response !== 'Transaction Not Found' && data.Response.Status !== 'Pending') {
+                            resolve(data.Response);  // Resolve if transaction is confirmed
+                        } else {
+                            console.log('Transaction not yet confirmed or not found, polling again...');
+                            setTimeout(checkTransaction, interval);  // Continue polling
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error fetching transaction:', error);
+                        reject(error);  // Reject on error
+                    });
+            };
+    
+            // Start the first poll after the interval
+            setTimeout(checkTransaction, interval);
+        });
+    }
+    
+
+    // Public API
+    return {
+        checkWallet : checkWallet,
+        getWallet : getWallet,
+        getLatestTransactions : getLatestTransactions,
+        getWalletBalance : getWalletBalance,
+        testContract : testContract,
+        callContract : callContract,
+        setNAGKey : setNAGKey,
+        setNAGURL : setNAGURL,
+        getNAGURL : getNAGURL,
+        getNAGKey : getNAGKey,
+        hexFix : hexFix,
+        stringToHex : stringToHex,
+        hexToString : hexToString,
+        registerWallet : registerWallet,
+        getDomain : getDomain,
+        getAssetList : getAssetList,
+        getAsset : getAsset,
+        getVoucher : getVoucher,
+        getAssetSupply : getAssetSupply,
+        signMessage : signMessage,
+        getPublicKey : getPublicKey,
+        getFormattedTimestamp : getFormattedTimestamp,
+        verifySignature : verifySignature,
+        getBlock : getBlock,
+        getBlockRange : getBlockRange,
+        getBlockCount : getBlockCount,
+        getAnalytics : getAnalytics,
+        getBlockchains : getBlockchains,
+        getPendingTransaction : getPendingTransaction,
+        getTransactionbyID : getTransactionbyID,
+        getTransactionbyNode : getTransactionbyNode,
+        getTransactionbyAddress : getTransactionbyAddress,
+        getTransactionbyDate : getTransactionbyDate,
+        sendTransaction : sendTransaction,
+        getTransactionOutcome : getTransactionOutcome,
+        getWalletNonce : getWalletNonce,
+        hashString : hashString,
+
+    };
+})();
+export default CircularProtocolAPI;
+</file>
+
+<file path="tests/circularProtocolAPI.test.js">
+// /tests/circularProtocolAPI.test.js
+const CircularProtocolAPI = require('../lib/index.cjs');
+const nock = require('nock');
+
+describe('CircularProtocolAPI - GetBlockchains', () => {
+  
+  // Mocking the response from the server
+  beforeEach(() => {
+    nock('https://nag.circularlabs.io') // Mock the server
+      .post('/NAG.php?cep=Circular_GetBlockchains_') // Simulate the correct endpoint
+      .reply(200, {
+        Result: 200,
+        Response: {
+          Blockchains: [
+            { Address: "714d2ac07a826b66ac56752eebd7c77b58d2ee842e523d913fd0ef06e6bdfcae", Name: "Circular Main Public" },
+            { Address: "acb8a9b79f3c663aa01be852cd42725f9e0e497fd849b436df51c5e074ebeb28", Name: "Circular Secondary Public" },
+            { Address: "e087257c48a949710b48bc725b8d90066871fa08f7bbe75d6b140d50119c481f", Name: "Circular Documark Public" },
+            { Address: "8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2", Name: "Circular SandBox" }
+          ]
+        },
+        Node: "fc8fe5ee103dafe353c98ce90a1cb2956fd51a109512e074bd3d26a06d268e81"
+      });
+  });
+
+  // Cleanup after each test
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
+  test('should return the list of blockchains with their addresses and names', async () => {
+    const response = await CircularProtocolAPI.getBlockchains();
+
+    expect(response.Result).toBe(200);
+    expect(response.Response.Blockchains).toEqual([
+      { Address: "714d2ac07a826b66ac56752eebd7c77b58d2ee842e523d913fd0ef06e6bdfcae", Name: "Circular Main Public" },
+      { Address: "acb8a9b79f3c663aa01be852cd42725f9e0e497fd849b436df51c5e074ebeb28", Name: "Circular Secondary Public" },
+      { Address: "e087257c48a949710b48bc725b8d90066871fa08f7bbe75d6b140d50119c481f", Name: "Circular Documark Public" },
+      { Address: "8a20baa40c45dc5055aeb26197c203e576ef389d9acb171bd62da11dc5ad72b2", Name: "Circular SandBox" }
+    ]);
+  });
+});
+</file>
+
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2024 Circular Protocol
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</file>
+
+<file path="package.json">
+{
+  "name": "circular-protocol-api",
+  "version": "1.0.14",
+  "description": "Circular Protocol Blockchain Official NodeJS API",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build:cjs": "webpack --config webpack.config.cjs.js",
+    "build:esm": "webpack --config webpack.config.esm.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/circular-protocol/circular-js-npm.git"
+  },
+  "type": "module",
+  "keywords": [
+    "Blockchain",
+    "Circular",
+    "Protocol",
+    "Smart",
+    "Contracts",
+    "Circular",
+    "Web",
+    "3.0"
+  ],
+  "author": "Danny De Novi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/circular-protocol/circular-js-npm/issues"
+  },
+  "homepage": "https://github.com/circular-protocol/circular-js-npm#readme",
+  "dependencies": {
+    "elliptic": "^6.5.7",
+    "node-fetch": "^3.3.2",
+    "sha256": "^0.2.0"
+  },
+  "exports": {
+    ".": {
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.js"
+    }
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nock": "^13.5.5"
+  }
+}
+</file>
+
+<file path="README.md">
+# Circular Protocol Node.js API
+
+## Overview
+
+This is the **Circular Protocol Node.js API**, an open-source Node.js package designed to interact with the Circular Blockchain platform and its associated Network Access Gateway (NAG). This package provides a comprehensive set of APIs to manage wallets, assets, smart contracts, and blockchain transactions.
+
+### Version: 1.0.14
+- **Creation Date**: 7/12/2022
+- **Last Update**: 28/01/2025
+- **Originator**: Gianluca De Novi, PhD
+- **Contributors**: Danny De Novi, redorc83
+
+---
+
+## Features
+- Smart contract management and execution.
+- Wallet creation, registration, and balance retrieval.
+- Blockchain transaction submission and querying.
+- Asset and voucher management.
+- Domain resolution and association with wallets.
+- Analytics and blockchain data retrieval.
+- Support for `secp256k1` signing and verification using elliptic curve cryptography.
+
+---
+
+## Installation
+
+```bash
+npm install circular-protocol-api
+```
+
+---
+
+## Usage
+
+### CommonJS
+```js
+const CircularProtocolAPI = require('circular-protocol-api');
+
+(async () => {
+    try {
+        const blockchain = 'your-blockchain';
+        const wallet = 'your-wallet';
+        const walletExists = await CircularProtocolAPI.getWallet(blockchain, wallet); // 60-second timeout, 5-second interval
+        console.log('Wallet exists:', walletExists);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```
+
+### ES Modules
+```js
+import CircularProtocolAPI from 'circular-protocol-api';
+
+var walletExists = await CircularProtocolAPI.getWallet('BlockchainHex', 'WalletAddressHex');
+console.log(walletExists)
+```
+
+---
+
+## API Documentation
+
+Find more on [GitBook](https://circular-protocol.gitbook.io/circular-sdk/api-docs/node.js)
+
+---
+
+## License
+
+This library is open-source and available for both private and commercial use. For detailed terms, please refer to the LICENSE file provided in the repository.
+
+---
+
+## Contributors
+
+- **Gianluca De Novi, PhD**
+- **Danny De Novi**
+- **redorc83**
+
+For any issues or feature requests, feel free to open an issue or submit a pull request on the GitHub repository.
+</file>
+
+</files>
