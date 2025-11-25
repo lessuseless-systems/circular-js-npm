@@ -1,47 +1,79 @@
 {
-  "name": "circular-protocol-api",
-  "version": "1.0.14",
-  "description": "Circular Protocol Blockchain Official NodeJS API",
-  "main": "./lib/index.js",
-  "scripts": {
-    "build:cjs": "webpack --config webpack.config.cjs.js",
-    "build:esm": "webpack --config webpack.config.esm.js",
-    "test": "jest"
+  "author": "Danny De Novi",
+  "bugs": {
+    "url": "https://github.com/circular-protocol/circular-js-npm/issues"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/circular-protocol/circular-js-npm.git"
+  "dependencies": {
+    "elliptic": "^6.5.7",
+    "node-fetch": "^3.3.2",
+    "sha256": "^0.2.0"
   },
-  "type": "module",
+  "description": "Official API specification for Circular Protocol blockchain operations and wallet management",
+  "devDependencies": {
+    "@types/elliptic": "^6.4.18",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.7",
+    "@types/sha256": "^0.2.2",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "nock": "^13.5.5",
+    "prettier": "^3.2.5",
+    "ts-jest": "^29.1.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs"
+    }
+  },
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/circular-protocol/circular-js-npm#readme",
   "keywords": [
     "Blockchain",
     "Circular",
     "Protocol",
     "Smart",
     "Contracts",
-    "Circular",
     "Web",
-    "3.0"
+    "3.0",
+    "SDK",
+    "API",
+    "TypeScript"
   ],
-  "author": "Danny De Novi",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/circular-protocol/circular-js-npm/issues"
+  "main": "./lib/index.js",
+  "name": "circular-protocol-api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/circular-protocol/circular-js-npm.git"
   },
-  "homepage": "https://github.com/circular-protocol/circular-js-npm#readme",
-  "dependencies": {
-    "elliptic": "^6.5.7",
-    "node-fetch": "^3.3.2",
-    "sha256": "^0.2.0"
+  "scripts": {
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "webpack --config webpack.config.cjs.js",
+    "build:esm": "webpack --config webpack.config.esm.js",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest",
+    "test:unit": "jest __tests__/",
+    "test:integration": "jest integration.test.ts",
+    "test:e2e": "jest e2e.test.ts",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "type-check": "tsc --noEmit"
   },
-  "exports": {
-    ".": {
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.js"
-    }
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "nock": "^13.5.5"
-  }
+  "type": "module",
+  "version": "1.0.9"
 }
